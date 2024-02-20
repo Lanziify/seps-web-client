@@ -1,16 +1,4 @@
-import {
-  Stack,
-  Input,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Box,
-  Flex,
-  Heading,
-  InputGroup,
-  InputLeftAddon,
-} from '@chakra-ui/react'
+import * as Chakra from '@chakra-ui/react'
 import React from 'react'
 import axios from 'axios'
 import { Field, Form, Formik } from 'formik'
@@ -71,11 +59,11 @@ const RegisterUser: React.FC = () => {
   })
 
   return (
-    <Flex bg="gray.100" align="center" justify="center" h="100vh">
-      <Box bg="white" p={6} rounded="md" margin={8} w={420}>
+    <Chakra.Flex bg="gray.100" align="center" justify="center" h="100vh">
+      <Chakra.Box bg="white" p={6} rounded="md" margin={8} w={420}>
         {regisrationResponse ? (
           <>
-            <Heading
+            <Chakra.Heading
               as="h1"
               size="xl"
               marginBottom={2}
@@ -83,7 +71,7 @@ const RegisterUser: React.FC = () => {
               color="teal.400"
             >
               {regisrationResponse.title}
-            </Heading>
+            </Chakra.Heading>
             <p className="text-sm text-center">{regisrationResponse.message}</p>
           </>
         ) : (
@@ -100,25 +88,25 @@ const RegisterUser: React.FC = () => {
           >
             {({ values, errors, touched, handleChange, isSubmitting }) => (
               <Form>
-                <Stack padding={3} spacing={3}>
-                  <Heading as="h1" size="2xl" color="teal.400">
+                <Chakra.Stack padding={3} spacing={3}>
+                  <Chakra.Heading as="h1" size="2xl" color="teal.400">
                     Register
-                  </Heading>
-                  <FormControl
+                  </Chakra.Heading>
+                  <Chakra.FormControl
                     isInvalid={!!errors.username && !!touched.username}
                     isRequired
                   >
-                    <FormLabel htmlFor="username">Username</FormLabel>
-                    <InputGroup>
-                      <InputLeftAddon
+                    <Chakra.FormLabel htmlFor="username">Username</Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
                         border={0}
                         background="purple.500"
                         color="white"
                       >
                         <MdPersonOutline />
-                      </InputLeftAddon>
+                      </Chakra.InputLeftAddon>
                       <Field
-                        as={Input}
+                        as={Chakra.Input}
                         id="username"
                         name="username"
                         variant="filled"
@@ -128,25 +116,25 @@ const RegisterUser: React.FC = () => {
                         onChange={handleChange}
                         disabled={isSubmitting}
                       />
-                    </InputGroup>
-                    <FormErrorMessage>{errors.username}</FormErrorMessage>
-                  </FormControl>
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>{errors.username}</Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-                  <FormControl
+                  <Chakra.FormControl
                     isInvalid={!!errors.email && !!touched.email}
                     isRequired
                   >
-                    <FormLabel htmlFor="email">Email</FormLabel>
-                    <InputGroup>
-                      <InputLeftAddon
+                    <Chakra.FormLabel htmlFor="email">Email</Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
                         border={0}
                         background="purple.500"
                         color="white"
                       >
                         <MdOutlineAlternateEmail />
-                      </InputLeftAddon>
+                      </Chakra.InputLeftAddon>
                       <Field
-                        as={Input}
+                        as={Chakra.Input}
                         id="email"
                         name="email"
                         variant="filled"
@@ -156,25 +144,25 @@ const RegisterUser: React.FC = () => {
                         onChange={handleChange}
                         disabled={isSubmitting}
                       />
-                    </InputGroup>
-                    <FormErrorMessage>{errors.email}</FormErrorMessage>
-                  </FormControl>
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>{errors.email}</Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-                  <FormControl
+                  <Chakra.FormControl
                     isInvalid={!!errors.password && !!touched.password}
                     isRequired
                   >
-                    <FormLabel htmlFor="password">Password</FormLabel>
-                    <InputGroup>
-                      <InputLeftAddon
+                    <Chakra.FormLabel htmlFor="password">Password</Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
                         border={0}
                         background="purple.500"
                         color="white"
                       >
                         <MdLockOutline />
-                      </InputLeftAddon>
+                      </Chakra.InputLeftAddon>
                       <Field
-                        as={Input}
+                        as={Chakra.Input}
                         id="password"
                         name="password"
                         variant="filled"
@@ -184,29 +172,29 @@ const RegisterUser: React.FC = () => {
                         onChange={handleChange}
                         disabled={isSubmitting}
                       />
-                    </InputGroup>
-                    <FormErrorMessage>{errors.password}</FormErrorMessage>
-                  </FormControl>
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>{errors.password}</Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-                  <FormControl
+                  <Chakra.FormControl
                     isInvalid={
                       !!errors.confirmPassword && !!touched.confirmPassword
                     }
                     isRequired
                   >
-                    <FormLabel htmlFor="confirmPassword">
+                    <Chakra.FormLabel htmlFor="confirmPassword">
                       Confirm Password
-                    </FormLabel>
-                    <InputGroup>
-                      <InputLeftAddon
+                    </Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
                         border={0}
                         background="purple.500"
                         color="white"
                       >
                         <MdLockOutline />
-                      </InputLeftAddon>
+                      </Chakra.InputLeftAddon>
                       <Field
-                        as={Input}
+                        as={Chakra.Input}
                         id="confirmPassword"
                         name="confirmPassword"
                         variant="filled"
@@ -226,26 +214,26 @@ const RegisterUser: React.FC = () => {
                           return error
                         }}
                       />
-                    </InputGroup>
-                    <FormErrorMessage>
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>
                       {errors.confirmPassword}
-                    </FormErrorMessage>
-                  </FormControl>
-                  <Button
+                    </Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
+                  <Chakra.Button
                     colorScheme="purple"
                     type="submit"
                     isDisabled={isSubmitting}
                     isLoading={isSubmitting}
                   >
                     Register
-                  </Button>
-                </Stack>
+                  </Chakra.Button>
+                </Chakra.Stack>
               </Form>
             )}
           </Formik>
         )}
-      </Box>
-    </Flex>
+      </Chakra.Box>
+    </Chakra.Flex>
   )
 }
 
