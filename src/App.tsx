@@ -1,10 +1,12 @@
 import './App.css'
-import RegisterUser from './components/RegisterUser'
+import LoginUser from './components/LoginUser'
+// import RegisterUser from './components/RegisterUser'
 
 function App() {
   return (
     <>
-      <RegisterUser />
+      {/* <RegisterUser /> */}
+      <LoginUser />
     </>
   )
 }
