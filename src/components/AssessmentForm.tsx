@@ -4,38 +4,35 @@ import { Field, Form, Formik } from 'formik'
 import { AssessmentFormSchema } from '../utils/validation'
 import { InitialFeatureValues } from '../data/InitialFeatureValues'
 import { featuresItems } from '../data/FeatureItems'
-import axios, { AxiosError } from 'axios'
+import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
+import { useAuth } from '../context/AuthContext'
 
 interface Features {
   [key: string]: string | number
 }
 
-interface ErrorResponse {
-  error: string
-}
-
 const AssessmentForm = () => {
+  const { token } = useAuth()
+  const customAxios = useAxiosInterceptor()
+
   const handleSubmitForm = async (values: Features) => {
     try {
       const { studentId, ...formData } = values
-
       const data = Object.values(formData)
-
-
-      const response = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_BASE_URL}/predict`,
+      const response = await customAxios.post(
+        '/predict',
         {
           input: data,
+        },
+        {
+          headers: {
+            Authorization: token?.accessToken,
+          },
         }
       )
       console.log(response.data)
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ErrorResponse>
-        if (axiosError.response?.data) {
-          console.log(axiosError.response.data.error)
-        }
-      }
+      console.log(error)
     }
   }
 

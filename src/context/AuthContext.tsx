@@ -1,66 +1,64 @@
 import React from 'react'
-import axios from 'axios'
-import useToken from '../hooks/useToken'
-
-const BASE_URL = `${import.meta.env.VITE_REACT_APP_BASE_URL}`
-
-const Context = React.createContext<{
-  user: any | null
-  loginUser: (values: UserData) => Promise<void>
-  clearToken: () => void
-}>({
-  user: {},
-  loginUser: async () => {},
-  clearToken: () => {},
-})
+import axios from '../api/axios'
 
 type AuthProviderProps = {
   children: React.ReactNode
 }
 
-type UserData = {
-  email: string
-  password: string
-}
+type Token = { accessToken: string; refreshToken: string | undefined } | null
+
+const Context = React.createContext<{
+  token: Token
+  user: any | null
+  saveToken: (token: Token) => Promise<void>
+  logoutUser: () => void
+}>({
+  token: null,
+  user: null,
+  saveToken: async () => {},
+  logoutUser: () => {},
+})
 
 const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = React.useState(null)
-  const { token, saveToken, removeToken } = useToken()
 
-  const loginUser = async (values: UserData) => {
-    try {
-      const response = await axios.post(`${BASE_URL}/login`, {
-        ...values,
-      })
-      saveToken(response.data.accessToken)
-    } catch (error) {
-      throw error
-    }
+  const getToken = (): Token => {
+    const userToken = localStorage.getItem('accessToken')
+    return userToken ? JSON.parse(userToken) : null
   }
 
-  const getUserDetails = async () => {
-    try {
-      if (token == null) return
-      const response = await axios.get(`${BASE_URL}/user/details`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setUser(response.data.user)
-    } catch (error) {
-      console.log(error)
-    }
+  const [token, setToken] = React.useState<Token>(getToken())
+
+  const logoutUser = () => {
+    localStorage.removeItem('accessToken')
+    setToken(null)
+    setUser(null)
+  }
+
+  const saveToken = async (token: Token) => {
+    localStorage.setItem('accessToken', JSON.stringify(token))
+    setToken(token)
   }
 
   React.useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        if (!token) return
+        const response = await axios.get('/user/details')
+        setUser(response.data.user)
+      } catch (error) {
+        console.log(error)
+      }
+    }
     getUserDetails()
   }, [token])
 
-  const clearToken = () => {
-    removeToken()
+  const values = {
+    user,
+    token,
+    saveToken,
+    logoutUser,
   }
-
-  const values = { user, token, loginUser, clearToken }
 
   return <Context.Provider value={values}>{children}</Context.Provider>
 }

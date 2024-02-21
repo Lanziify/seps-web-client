@@ -5,31 +5,29 @@ import * as yup from 'yup'
 import { regex } from '../strings/regex'
 import { MdLockOutline, MdOutlineAlternateEmail } from 'react-icons/md'
 import { useAuth } from '../context/AuthContext'
-import axios, { AxiosError } from 'axios'
+import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 
 interface RegistrationValues {
   email: string
   password: string
 }
 
-interface ErrorResponse {
-  error: string
-}
-
 const LoginUser: React.FC = () => {
-  const { loginUser } = useAuth()
+  const { user, saveToken, logoutUser } = useAuth()
+
+  const axios = useAxiosInterceptor()
+
   const [loginError, setLoginError] = React.useState<string | null>(null)
 
   const handleSubmit = async (values: RegistrationValues) => {
     try {
-      await loginUser(values)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<ErrorResponse>
-        if (axiosError.response?.data) {
-          setLoginError(axiosError.response.data.error)
-        }
-      }
+      const response = await axios.post('/login', {
+        ...values,
+      })
+
+      saveToken(response.data)
+    } catch (error: any) {
+      setLoginError(error.message)
     }
   }
 
@@ -66,13 +64,15 @@ const LoginUser: React.FC = () => {
           {({ errors, touched, handleChange, isSubmitting }) => (
             <Form>
               <Chakra.Stack padding={3} spacing={3}>
-                <Chakra.Heading as="h1" size="2xl" marginBottom={2}>
-                  Login
+                <Chakra.Heading as="h1" size="lg" marginBottom={2} textAlign='center'>
+                  Student Employability Prediction System
                 </Chakra.Heading>
                 <Chakra.Alert status="error" hidden={!loginError} rounded="md">
                   <Chakra.AlertIcon />
                   <Chakra.Box>
-                    <Chakra.AlertDescription>{loginError}</Chakra.AlertDescription>
+                    <Chakra.AlertDescription>
+                      {loginError}
+                    </Chakra.AlertDescription>
                   </Chakra.Box>
                   <Chakra.CloseButton
                     alignSelf="flex-start"
@@ -106,12 +106,16 @@ const LoginUser: React.FC = () => {
                       disabled={isSubmitting}
                     />
                   </Chakra.InputGroup>
-                  <Chakra.FormErrorMessage>{errors.email}</Chakra.FormErrorMessage>
+                  <Chakra.FormErrorMessage>
+                    {errors.email}
+                  </Chakra.FormErrorMessage>
                 </Chakra.FormControl>
                 <Chakra.FormControl
                   isInvalid={!!errors.password && !!touched.password}
                 >
-                  <Chakra.FormLabel htmlFor="password">Password</Chakra.FormLabel>
+                  <Chakra.FormLabel htmlFor="password">
+                    Password
+                  </Chakra.FormLabel>
                   <Chakra.InputGroup>
                     <Chakra.InputLeftAddon
                       border={0}
@@ -132,9 +136,14 @@ const LoginUser: React.FC = () => {
                       disabled={isSubmitting}
                     />
                   </Chakra.InputGroup>
-                  <Chakra.FormErrorMessage>{errors.password}</Chakra.FormErrorMessage>
+                  <Chakra.FormErrorMessage>
+                    {errors.password}
+                  </Chakra.FormErrorMessage>
                 </Chakra.FormControl>
-                <Chakra.Text align='center'>Forgot password?</Chakra.Text>
+                <Chakra.Text fontSize={14} placeSelf="flex-end">
+                  Forgot Password?
+                </Chakra.Text>
+                <div></div>
                 <Chakra.Button
                   colorScheme="purple"
                   type="submit"
