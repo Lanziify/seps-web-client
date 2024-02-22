@@ -3,39 +3,23 @@ import React from 'react'
 import { Field, Form, Formik } from 'formik'
 import * as yup from 'yup'
 import { regex } from '../strings/regex'
-import { MdLockOutline, MdOutlineAlternateEmail } from 'react-icons/md'
-import { useAuth } from '../context/AuthContext'
-import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
+import {
+  MdLockOutline,
+  MdOutlineAlternateEmail,
+  MdPersonOutline,
+} from 'react-icons/md'
+import { NavLink } from 'react-router-dom'
 
-interface RegistrationValues {
-  email: string
-  password: string
+type PropTypes = {
+  onSubmit: any
+  registrationError: any
+  onCloseError: any
+  toLoginLink: string
 }
 
-const LoginUser: React.FC = () => {
-  const { user, saveToken, logoutUser } = useAuth()
-
-  const axios = useAxiosInterceptor()
-
-  const [loginError, setLoginError] = React.useState<string | null>(null)
-
-  const handleSubmit = async (values: RegistrationValues) => {
-    try {
-      const response = await axios.post('/login', {
-        ...values,
-      })
-
-      saveToken(response.data)
-    } catch (error: any) {
-      setLoginError(error.message)
-    }
-  }
-
-  const onClose = () => {
-    setLoginError(null)
-  }
-
+const RegisterForm: React.FC<PropTypes> = (props: PropTypes) => {
   const registrationValidationSchema = yup.object().shape({
+    username: yup.string().required('Username is required'),
     email: yup
       .string()
       .required('Email is required')
@@ -54,24 +38,30 @@ const LoginUser: React.FC = () => {
       <Chakra.Box bg="white" p={6} rounded="md" margin={8} w={420}>
         <Formik
           initialValues={{
+            username: '',
             email: '',
             password: '',
+            confirmPassword: '',
           }}
           validationSchema={registrationValidationSchema}
           enableReinitialize={true}
-          onSubmit={handleSubmit}
+          onSubmit={props.onSubmit}
         >
-          {({ errors, touched, handleChange, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form>
               <Chakra.Stack padding={3} spacing={3}>
-                <Chakra.Heading as="h1" size="lg" marginBottom={2} textAlign='center'>
-                  Student Employability Prediction System
+                <Chakra.Heading as="h1" size="xl">
+                  Register
                 </Chakra.Heading>
-                <Chakra.Alert status="error" hidden={!loginError} rounded="md">
+                <Chakra.Alert
+                  status="error"
+                  hidden={!props.registrationError}
+                  rounded="md"
+                >
                   <Chakra.AlertIcon />
-                  <Chakra.Box>
+                  <Chakra.Box width="inherit">
                     <Chakra.AlertDescription>
-                      {loginError}
+                      {props.registrationError}
                     </Chakra.AlertDescription>
                   </Chakra.Box>
                   <Chakra.CloseButton
@@ -79,9 +69,40 @@ const LoginUser: React.FC = () => {
                     position="relative"
                     right={-1}
                     top={-1}
-                    onClick={onClose}
+                    onClick={props.onCloseError}
                   />
                 </Chakra.Alert>
+                <Chakra.FormControl
+                  isInvalid={!!errors.username && !!touched.username}
+                >
+                  <Chakra.FormLabel htmlFor="username">
+                    Username
+                  </Chakra.FormLabel>
+                  <Chakra.InputGroup>
+                    <Chakra.InputLeftAddon
+                      border={0}
+                      background="purple.500"
+                      color="white"
+                    >
+                      <MdPersonOutline />
+                    </Chakra.InputLeftAddon>
+                    <Field
+                      as={Chakra.Input}
+                      id="username"
+                      name="username"
+                      variant="filled"
+                      type="text"
+                      focusBorderColor="purple.500"
+                      roundedStart={0}
+                      onChange={handleChange}
+                      disabled={isSubmitting}
+                    />
+                  </Chakra.InputGroup>
+                  <Chakra.FormErrorMessage>
+                    {errors.username}
+                  </Chakra.FormErrorMessage>
+                </Chakra.FormControl>
+
                 <Chakra.FormControl
                   isInvalid={!!errors.email && !!touched.email}
                 >
@@ -110,6 +131,7 @@ const LoginUser: React.FC = () => {
                     {errors.email}
                   </Chakra.FormErrorMessage>
                 </Chakra.FormControl>
+
                 <Chakra.FormControl
                   isInvalid={!!errors.password && !!touched.password}
                 >
@@ -140,9 +162,49 @@ const LoginUser: React.FC = () => {
                     {errors.password}
                   </Chakra.FormErrorMessage>
                 </Chakra.FormControl>
-                <Chakra.Text fontSize={14} placeSelf="flex-end">
-                  Forgot Password?
-                </Chakra.Text>
+
+                <Chakra.FormControl
+                  isInvalid={
+                    !!errors.confirmPassword && !!touched.confirmPassword
+                  }
+                >
+                  <Chakra.FormLabel htmlFor="confirmPassword">
+                    Confirm Password
+                  </Chakra.FormLabel>
+                  <Chakra.InputGroup>
+                    <Chakra.InputLeftAddon
+                      border={0}
+                      background="purple.500"
+                      color="white"
+                    >
+                      <MdLockOutline />
+                    </Chakra.InputLeftAddon>
+                    <Field
+                      as={Chakra.Input}
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      variant="filled"
+                      type="password"
+                      focusBorderColor="purple.500"
+                      roundedStart={0}
+                      onChange={handleChange}
+                      validate={(value: string) => {
+                        let error
+
+                        if (value.length == 0) {
+                          error = 'Confirm your password'
+                        } else if (value != values.password) {
+                          error = 'Password does not match'
+                        }
+
+                        return error
+                      }}
+                    />
+                  </Chakra.InputGroup>
+                  <Chakra.FormErrorMessage>
+                    {errors.confirmPassword}
+                  </Chakra.FormErrorMessage>
+                </Chakra.FormControl>
                 <div></div>
                 <Chakra.Button
                   colorScheme="purple"
@@ -150,8 +212,17 @@ const LoginUser: React.FC = () => {
                   isDisabled={isSubmitting}
                   isLoading={isSubmitting}
                 >
-                  Login
+                  Register
                 </Chakra.Button>
+                <Chakra.Text fontSize={14} marginTop={4} placeSelf="center">
+                  Already have an account?{' '}
+                  <NavLink
+                    to={props.toLoginLink}
+                    className="text-purple-400 font-semibold"
+                  >
+                    Login
+                  </NavLink>
+                </Chakra.Text>
               </Chakra.Stack>
             </Form>
           )}
@@ -161,4 +232,4 @@ const LoginUser: React.FC = () => {
   )
 }
 
-export default LoginUser
+export default RegisterForm

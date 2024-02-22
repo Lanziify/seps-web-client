@@ -1,15 +1,28 @@
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import AssessmentForm from './components/AssessmentForm'
-import LoginUser from './components/LoginUser'
-// import RegisterUser from './components/RegisterUser'
+import PublicRoutes from './routes/PublicRoutes'
+import ProtectedRoutes from './routes/ProtectedRoutes'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Home from './pages/Home'
+import NotFound from './pages/NotFound'
+import { useAuth } from './context/AuthContext'
 
 function App() {
+  const {getUserDetails} = useAuth()
   return (
-    <>
-      {/* <RegisterUser /> */}
-      <LoginUser />
-      <AssessmentForm />
-    </>
+    <Routes>
+      <Route path="/" element={<PublicRoutes />}>
+        <Route index element={<Login />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+      </Route>
+      <Route element={<ProtectedRoutes />}>
+        {/* <Route index element={<Home />} /> */}
+        <Route path="home" element={<Home />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
 

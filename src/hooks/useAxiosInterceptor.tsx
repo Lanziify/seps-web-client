@@ -42,7 +42,7 @@ const useAxiosInterceptor = () => {
       (response) => {
         return response
       },
-      (error) => {
+      async (error) => {
         if (isAxiosError(error)) {
           const axiosError = error as AxiosError<ErrorResponse>
           if (axiosError.response?.data) {
