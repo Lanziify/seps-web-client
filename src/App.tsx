@@ -6,10 +6,10 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
-import { useAuth } from './context/AuthContext'
+import Predictions from './pages/Predictions'
+import Datasets from './pages/Datasets'
 
 function App() {
-  const {getUserDetails} = useAuth()
   return (
     <Routes>
       <Route path="/" element={<PublicRoutes />}>
@@ -18,8 +18,9 @@ function App() {
         <Route path="register" element={<Register />} />
       </Route>
       <Route element={<ProtectedRoutes />}>
-        {/* <Route index element={<Home />} /> */}
         <Route path="home" element={<Home />} />
+        <Route path="predictions" element={<Predictions />} />
+        <Route path="datasets" element={<Datasets />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

@@ -2,7 +2,7 @@ export const featuresItems = [
     {
       id: 'generalSpeaking',
       name: 'generalSpeaking',
-      label: 'General Speaking',
+      label: 'General Appearance',
       description: 'Assess professional presentation, grooming, and attire.',
     },
     {
