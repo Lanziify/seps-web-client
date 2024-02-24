@@ -45,7 +45,7 @@ const Header = () => {
           </Chakra.InputLeftElement>
         </Chakra.InputGroup>
         <Chakra.Stack direction="row" hideBelow="sm">
-          <Chakra.Button size="sm" hideBelow="md">
+          <Chakra.Button colorScheme="gray" size="sm" hideBelow="md">
             Evaluate Student
           </Chakra.Button>
           <Chakra.IconButton
@@ -70,16 +70,7 @@ const Header = () => {
             color="white"
             hideFrom="md"
           />
-          <Chakra.Button
-            aria-label="profile"
-            size="sm"
-            colorScheme='purple'
-            leftIcon={<IoPerson size={18} />}
-            color="white"
-            hideBelow="md"
-          >
-            {user.username}
-          </Chakra.Button>
+          <Chakra.Avatar size='sm' name={user.username}></Chakra.Avatar>
         </Chakra.Stack>
         <Chakra.IconButton
           aria-label="profile"

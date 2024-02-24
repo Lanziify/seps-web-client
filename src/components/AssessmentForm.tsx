@@ -6,6 +6,7 @@ import { InitialFeatureValues } from '../data/InitialFeatureValues'
 import { featuresItems } from '../data/FeatureItems'
 import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 import { useAuth } from '../context/AuthContext'
+import Swal from 'sweetalert2'
 
 interface Features {
   [key: string]: string | number
@@ -17,16 +18,33 @@ const AssessmentForm = () => {
 
   const handleSubmitForm = async (
     values: Features,
-    { setSubmitting, resetForm }: any,
+    { setSubmitting, resetForm }: any
   ) => {
     try {
-      const { studentId, ...formData } = values
-      const data = Object.values(formData)
+      const features = []
+
+      features.push(values.general_appearance)
+      features.push(values.manner_of_speaking)
+      features.push(values.physical_condition)
+      features.push(values.mental_alertness)
+      features.push(values.self_confidence)
+      features.push(values.ability_to_present_ideas)
+      features.push(values.communication_skills)
+      features.push(values.performance_rating)
+      Swal.fire({
+        title: 'Submitting Evaluation',
+        text: 'Evaluation data is now being uploaded. Please wait...',
+        allowEscapeKey: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading()
+        },
+      })
       const response = await customAxios.post(
         '/dataset/upload',
         {
-          studentId: studentId,
-          features: data,
+          studentId: values.studentId,
+          features: features,
         },
         {
           headers: {
@@ -34,7 +52,19 @@ const AssessmentForm = () => {
           },
         }
       )
-      console.log(response.data)
+      Swal.close()
+      await Swal.fire({
+        icon: 'success',
+        title: 'Profile Recorded!',
+        text: response.data.message,
+        showConfirmButton: true,
+        confirmButtonText: 'Confirm',
+        confirmButtonColor: '#3b82f6',
+        customClass: {
+          title: 'text-xl',
+          htmlContainer: 'swal2-text-body',
+        },
+      })
       resetForm()
       setSubmitting(false)
     } catch (error) {

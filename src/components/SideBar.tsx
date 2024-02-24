@@ -12,14 +12,14 @@ const SideBar = () => {
       left={0}
       bottom={0}
       // width="sm"
-      minWidth='15rem'
+      minWidth="15rem"
       height="calc(100vh - 5.5rem)"
       className="top-[75px]"
       spacing={0}
       hideBelow="md"
     >
       <Chakra.Stack height="100%" justifyContent="space-between">
-        <Chakra.Stack>
+        <Chakra.Stack spacing={0}>
           {menuItems.map((item, index) => (
             <Chakra.Button
               as={NavLink}

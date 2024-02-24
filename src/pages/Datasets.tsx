@@ -1,18 +1,37 @@
+import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
-import { ThemeProvider, createTheme } from '@mui/material'
+import { ThemeProvider, createTheme, Button } from '@mui/material'
 import type {} from '@mui/x-data-grid/themeAugmentation'
 import { setDatasetPage, setDatasetPageSize } from '../redux/datasetSlice'
+import { IoCheckmarkCircleOutline, IoCloseCircleOutline } from 'react-icons/io5'
+import { useAuth } from '../context/AuthContext'
+import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 
 const Datasets = () => {
+  const { token } = useAuth()
   const dispatch = useDispatch()
+  const axios = useAxiosInterceptor()
+  const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
   const { dataset, page, pageSize, total, isLoadingDataset } = useSelector(
     (state: any) => state.dataset
   )
 
+  const initialFocusRef = React.useRef(null)
+  const [predictionQueue, setPredictionQueue] = React.useState<any | null>(null)
+  const [isPredicting, setIsPredicting] = React.useState(false)
+  const [hideModalButton, setHideModalButton] = React.useState(false)
+  const [modalContent, setModalContent] = React.useState<{
+    title: string
+    body: string
+  } | null>({
+    title: '',
+    body: '',
+  })
+
   const columns: GridColDef[] = [
-    { field: 'data_id', headerName: 'ID' },
+    { field: 'data_id', headerName: 'ID', flex: 1 },
     { field: 'student_id', headerName: 'Student ID', flex: 1 },
     {
       field: 'general_appearance',
@@ -58,9 +77,89 @@ const Datasets = () => {
       field: 'already_predicted',
       headerName: 'Predicted',
       flex: 1,
-      valueGetter: (value: GridValueGetterParams) =>
-        value.row.already_predicted.toString().charAt(0).toUpperCase() +
-        value.row.already_predicted.toString().slice(1),
+      renderCell: (params: GridRenderCellParams) =>
+        params.row.already_predicted ? (
+          <IoCheckmarkCircleOutline
+            size={24}
+            className="m-auto text-green-500"
+          />
+        ) : (
+          <IoCloseCircleOutline size={24} className="m-auto text-red-500" />
+        ),
+    },
+    {
+      field: 'action',
+      headerName: 'Actions',
+      renderCell: (params: GridRenderCellParams) =>
+        !params.row.already_predicted ? (
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{
+              backgroundColor: '#805AD5',
+              textTransform: 'none',
+              ':hover': {
+                backgroundColor: '#6B46C1',
+              },
+            }}
+            size="small"
+            disableElevation
+            onClick={() => {
+              setPredictionQueue(params.row)
+              setModalContent({
+                title: 'Predict Student Employability',
+                body: 'Are you sure you want to predict this data?',
+              })
+              onOpen()
+            }}
+          >
+            Predict
+          </Button>
+        ) : (
+          <Chakra.Popover
+            initialFocusRef={initialFocusRef}
+            placement="left-end"
+            closeOnBlur={false}
+          >
+            <Chakra.PopoverTrigger>
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{
+                  backgroundColor: '#38B2AC',
+                  textTransform: 'none',
+                  ':hover': {
+                    backgroundColor: '#319795',
+                  },
+                }}
+                size="small"
+                disableElevation
+              >
+                Done
+              </Button>
+            </Chakra.PopoverTrigger>
+            <Chakra.PopoverContent
+              bg="teal.400"
+              color="white"
+              padding={4}
+              rounded="md"
+            >
+              <Chakra.PopoverHeader fontWeight="bold" border="0">
+                Data is already predicted
+              </Chakra.PopoverHeader>
+              <Chakra.PopoverArrow bg="teal.400" />
+              <Chakra.PopoverCloseButton
+                alignSelf="flex-end"
+                position="relative"
+                right={-1}
+                top={-5}
+              />
+              <Chakra.PopoverBody>
+                Please check predictions section to view more details.
+              </Chakra.PopoverBody>
+            </Chakra.PopoverContent>
+          </Chakra.Popover>
+        ),
     },
   ]
 
@@ -79,15 +178,57 @@ const Datasets = () => {
     },
   })
 
+  const handlePredict = async () => {
+    try {
+      setIsPredicting(true)
+      const response = await axios.post(
+        '/model/predict',
+        {
+          datasetId: predictionQueue?.data_id,
+        },
+        {
+          headers: {
+            Authorization: token?.accessToken,
+          },
+        }
+      )
+
+      setModalContent({
+        title: 'Employability Predicted!',
+        body: `The system has identified student #${predictionQueue.student_id} as <b>${response.data.prediction}</b>!`,
+      })
+      setHideModalButton(true)
+      setIsPredicting(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const renderModalContent = () => {
+    if (modalContent?.body) {
+      return (
+        <div dangerouslySetInnerHTML={{ __html: modalContent?.body }}></div>
+      )
+    } else {
+      return null
+    }
+  }
+
   return (
-    <ThemeProvider theme={MuiTheme}>
-      <Chakra.Stack padding={4} maxWidth="100%">
+    <Chakra.Stack padding={4} maxWidth="100%">
+      <Chakra.Stack alignItems="center">
+        <Chakra.Heading as="h1" size="xl" fontWeight={700}>
+          Evaluation Datasets
+        </Chakra.Heading>
+      </Chakra.Stack>
+
+      <ThemeProvider theme={MuiTheme}>
         <DataGrid
           autoHeight
           getRowId={(row) => row.data_id}
           rows={dataset}
           columns={columns}
-          checkboxSelection
+          // checkboxSelection
           paginationMode="server"
           pageSizeOptions={[10, 20, 50]}
           paginationModel={{
@@ -102,8 +243,44 @@ const Datasets = () => {
           loading={isLoadingDataset}
           disableRowSelectionOnClick
         />
-      </Chakra.Stack>
-    </ThemeProvider>
+      </ThemeProvider>
+
+      <Chakra.Modal
+        isCentered
+        isOpen={isOpen}
+        onClose={onClose}
+        closeOnOverlayClick={isPredicting ? false : true}
+        lockFocusAcrossFrames
+      >
+        <Chakra.ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+        <Chakra.ModalContent width={isPredicting ? 'fit-content' : 'inherit'}>
+          {!isPredicting && (
+            <Chakra.ModalHeader>{modalContent?.title}</Chakra.ModalHeader>
+          )}
+          {!isPredicting && (
+            <Chakra.ModalCloseButton
+              onClick={() => {
+                setModalContent(null)
+                setPredictionQueue(null)
+                setHideModalButton(false)
+              }}
+            />
+          )}
+          <Chakra.ModalBody>
+            {!isPredicting && renderModalContent()}
+            {isPredicting && <Chakra.Spinner size="xl" />}
+          </Chakra.ModalBody>
+          <Chakra.ModalFooter>
+            {hideModalButton ||
+              (!isPredicting && (
+                <Chakra.Button colorScheme="purple" onClick={handlePredict}>
+                  Confirm
+                </Chakra.Button>
+              ))}
+          </Chakra.ModalFooter>
+        </Chakra.ModalContent>
+      </Chakra.Modal>
+    </Chakra.Stack>
   )
 }
 

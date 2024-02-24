@@ -6,35 +6,35 @@ export const AssessmentFormSchema = yup.object().shape({
     .typeError('Invalid Student ID')
     .positive('Invalid Student ID')
     .required('Student ID is required'),
-  generalSpeaking: yup
+  general_appearance: yup
     .number()
-    .required('General Speaking is required')
+    .required('General Appearance is required')
     .min(1, 'Please select one of these options'),
-  mannerOfSpeaking: yup
+  manner_of_speaking: yup
     .number()
     .required('Manner of Speaking is required')
     .min(1, 'Please select one of these options'),
-  physicalCondition: yup
+  physical_condition: yup
     .number()
     .required('Physical Condition is required')
     .min(1, 'Please select one of these options'),
-  mentalAlertness: yup
+  mental_alertness: yup
     .number()
     .required('Mental Alertness is required')
     .min(1, 'Please select one of these options'),
-  selfConfidence: yup
+  self_confidence: yup
     .number()
     .required('Self Confidence is required')
     .min(1, 'Please select one of these options'),
-  abilityToPresentIdeas: yup
+  ability_to_present_ideas: yup
     .number()
     .required('Ability to Present Ideas is required')
     .min(1, 'Please select one of these options'),
-  communicationSkills: yup
+  communication_skills: yup
     .number()
     .required('Communication Skills is required')
     .min(1, 'Please select one of these options'),
-  performanceRating: yup
+  performance_rating: yup
     .number()
     .required('Performance Rating is required')
     .min(1, 'Please select one of these options'),

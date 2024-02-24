@@ -1,50 +1,50 @@
 export const featuresItems = [
-    {
-      id: 'generalSpeaking',
-      name: 'generalSpeaking',
-      label: 'General Appearance',
-      description: 'Assess professional presentation, grooming, and attire.',
-    },
-    {
-      id: 'mannerOfSpeaking',
-      name: 'mannerOfSpeaking',
-      label: 'Manner of Speaking',
-      description: 'Evaluate clear, articulate communication skills.',
-    },
-    {
-      id: 'physicalCondition',
-      name: 'physicalCondition',
-      label: 'Physical Condition',
-      description: 'Consider overall health and fitness.',
-    },
-    {
-      id: 'mentalAlertness',
-      name: 'mentalAlertness',
-      label: 'Mental Alertness',
-      description: 'Gauge cognitive sharpness and quick thinking.',
-    },
-    {
-      id: 'selfConfidence',
-      name: 'selfConfidence',
-      label: 'Self Confidence',
-      description: 'Assess level of self-assurance and poise.',
-    },
-    {
-      id: 'abilityToPresentIdeas',
-      name: 'abilityToPresentIdeas',
-      label: 'Ability to Present Ideas',
-      description: 'Evaluate proficiency in conveying thoughts coherently.',
-    },
-    {
-      id: 'communicationSkills',
-      name: 'communicationSkills',
-      label: 'Communication Skills',
-      description: 'Assess effectiveness in verbal and non-verbal communication.',
-    },
-    {
-      id: 'performanceRating',
-      name: 'performanceRating',
-      label: 'Student Performance Rating',
-      description: 'Review academic achievements and project outcomes.',
-    },
-  ]
+  {
+    id: 'general_appearance',
+    name: 'general_appearance',
+    label: 'General Appearance',
+    description: 'Assess professional presentation, grooming, and attire.',
+  },
+  {
+    id: 'manner_of_speaking',
+    name: 'manner_of_speaking',
+    label: 'Manner of Speaking',
+    description: 'Evaluate clear, articulate communication skills.',
+  },
+  {
+    id: 'physical_condition',
+    name: 'physical_condition',
+    label: 'Physical Condition',
+    description: 'Consider overall health and fitness.',
+  },
+  {
+    id: 'mental_alertness',
+    name: 'mental_alertness',
+    label: 'Mental Alertness',
+    description: 'Gauge cognitive sharpness and quick thinking.',
+  },
+  {
+    id: 'self_confidence',
+    name: 'self_confidence',
+    label: 'Self Confidence',
+    description: 'Assess level of self-assurance and poise.',
+  },
+  {
+    id: 'ability_to_present_ideas',
+    name: 'ability_to_present_ideas',
+    label: 'Ability to Present Ideas',
+    description: 'Evaluate proficiency in conveying thoughts coherently.',
+  },
+  {
+    id: 'communication_skills',
+    name: 'communication_skills',
+    label: 'Communication Skills',
+    description: 'Assess effectiveness in verbal and non-verbal communication.',
+  },
+  {
+    id: 'performance_rating',
+    name: 'performance_rating',
+    label: 'Student Performance Rating',
+    description: 'Review academic achievements and project outcomes.',
+  },
+]
