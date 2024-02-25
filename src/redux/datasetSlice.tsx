@@ -4,9 +4,9 @@ const datasetSlice = createSlice({
   name: 'dataset',
   initialState: {
     dataset: [],
-    page: 1,
-    pageSize: 10,
-    total: 0,
+    datasetPage: 1,
+    datasetPageSize: 10,
+    datasetTotalItem: 0,
     isLoadingDataset: true,
   },
   reducers: {
@@ -15,13 +15,13 @@ const datasetSlice = createSlice({
       state.isLoadingDataset = false
     },
     setDatasetPage: (state, action) => {
-      state.page = action.payload
+      state.datasetPage = action.payload
     },
     setDatasetPageSize: (state, action) => {
-      state.pageSize = action.payload
+      state.datasetPageSize = action.payload
     },
-    setDatasetTotal: (state, action) => {
-      state.total = action.payload
+    setDatasetTotalItems: (state, action) => {
+      state.datasetTotalItem = action.payload
     },
   },
 })
@@ -30,6 +30,6 @@ export const {
   setDataset,
   setDatasetPage,
   setDatasetPageSize,
-  setDatasetTotal
+  setDatasetTotalItems,
 } = datasetSlice.actions
 export default datasetSlice.reducer

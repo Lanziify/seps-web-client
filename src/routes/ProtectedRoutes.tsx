@@ -6,26 +6,73 @@ import Header from '../components/Header'
 import SideBar from '../components/SideBar'
 import axios from '../api/axios'
 import { useDispatch, useSelector } from 'react-redux'
-import { setDataset, setDatasetTotal } from '../redux/datasetSlice'
+import { setDataset, setDatasetTotalItems } from '../redux/datasetSlice'
+import {
+  setPredictionTotalItems,
+  setPredictionsList,
+} from '../redux/predictionSlice'
 
 const ProtectedRoutes = () => {
   const { user, isUserLoading, token } = useAuth()
   const location = useLocation()
   const dispatch = useDispatch()
-  
-  const { page, pageSize } = useSelector((state: any) => state.dataset)
+
+  const toast = Chakra.useToast()
+
+  const { predictionPage, predictionPageSize } = useSelector(
+    (state: any) => state.predictions
+  )
+  const { datesetPage, dasetPageSize } = useSelector(
+    (state: any) => state.dataset
+  )
+
+  React.useEffect(() => {
+    const fetchPredictions = async () => {
+      try {
+        const response = await axios.get(
+          `/predictions?page=${predictionPage}&limit=${predictionPageSize}`
+        )
+        const stringifiedResponse = JSON.stringify(response.data.predictions)
+        if (stringifiedResponse) {
+          dispatch(setPredictionsList(JSON.parse(stringifiedResponse)))
+          dispatch(setPredictionTotalItems(response.data.total_items))
+        }
+      } catch (error: any) {
+        toast({
+          title: error.message,
+          position: 'top',
+          status: 'error',
+          variant: 'left-accent',
+          isClosable: true,
+        })
+      }
+    }
+    fetchPredictions()
+  }, [predictionPage, predictionPageSize])
 
   React.useEffect(() => {
     const fetchDatasets = async () => {
-      const response = await axios.get(`/dataset?page=${page}&limit=${pageSize}`)
-      const stringifiedResponse = JSON.stringify(response.data.datasets)
-      if (stringifiedResponse) {
-        dispatch(setDataset(JSON.parse(stringifiedResponse)))
-        dispatch(setDatasetTotal(response.data.total_items))
+      try {
+        const response = await axios.get(
+          `/dataset?page=${datesetPage}&limit=${dasetPageSize}`
+        )
+        const stringifiedResponse = JSON.stringify(response.data.datasets)
+        if (stringifiedResponse) {
+          dispatch(setDataset(JSON.parse(stringifiedResponse)))
+          dispatch(setDatasetTotalItems(response.data.total_items))
+        }
+      } catch (error: any) {
+        toast({
+          title: error.message,
+          position: 'top',
+          status: 'error',
+          variant: 'left-accent',
+          isClosable: true,
+        })
       }
     }
     fetchDatasets()
-  }, [page, pageSize])
+  }, [datesetPage, dasetPageSize])
 
   if (!token && !user) {
     return <Navigate to="/login" state={{ from: location }} replace />

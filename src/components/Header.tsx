@@ -1,4 +1,4 @@
-// import React from 'react'
+import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
 import {
   IoFileTray,
@@ -10,7 +10,8 @@ import {
 import { useAuth } from '../context/AuthContext'
 
 const Header = () => {
-  const { user } = useAuth()
+  const initialFocusRef = React.useRef(null)
+  const { user, logoutUser } = useAuth()
   return (
     <Chakra.Stack
       position="sticky"
@@ -70,7 +71,62 @@ const Header = () => {
             color="white"
             hideFrom="md"
           />
-          <Chakra.Avatar size='sm' name={user.username}></Chakra.Avatar>
+          <Chakra.Popover
+            initialFocusRef={initialFocusRef}
+            placement="bottom-end"
+            closeOnBlur={false}
+          >
+            <Chakra.PopoverTrigger>
+              <Chakra.IconButton
+                aria-label="profile"
+                background="purple.400"
+                size="sm"
+                icon={
+                  <Chakra.Avatar size="sm" name={user.username}>
+                    <Chakra.AvatarBadge boxSize='1.25em' bg='green.500' />
+                  </Chakra.Avatar>
+                }
+                color="white"
+                isRound
+              />
+            </Chakra.PopoverTrigger>
+            <Chakra.Portal>
+              <Chakra.PopoverContent>
+                <Chakra.PopoverHeader as="h1" fontSize="2xl" fontWeight="bold">
+                  Profile
+                </Chakra.PopoverHeader>
+                <Chakra.PopoverArrow bg="white" />
+                <Chakra.PopoverCloseButton />
+                <Chakra.PopoverBody>
+                  <Chakra.Flex gap={4} alignItems="center">
+                    <Chakra.Avatar
+                      size="lg"
+                      name={user.username}
+                    ></Chakra.Avatar>
+                    <Chakra.Stack spacing={0}>
+                      <Chakra.Text fontSize="xl" fontWeight={700}>
+                        {user.username}
+                      </Chakra.Text>
+                      <Chakra.Stack spacing={0}>
+                        <Chakra.Text fontSize={14}>{user.email}</Chakra.Text>
+                        <Chakra.Badge
+                          variant="outline"
+                          colorScheme="purple"
+                          width="fit-content"
+                          fontSize={10}
+                        >
+                          {user.verified ? 'Verified' : ''}
+                        </Chakra.Badge>
+                      </Chakra.Stack>
+                    </Chakra.Stack>
+                  </Chakra.Flex>
+                </Chakra.PopoverBody>
+                <Chakra.PopoverFooter>
+                  <Chakra.Button size='sm' width='100%' onClick={logoutUser}>Logout</Chakra.Button>
+                </Chakra.PopoverFooter>
+              </Chakra.PopoverContent>
+            </Chakra.Portal>
+          </Chakra.Popover>
         </Chakra.Stack>
         <Chakra.IconButton
           aria-label="profile"

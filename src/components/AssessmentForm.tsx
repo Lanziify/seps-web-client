@@ -1,12 +1,11 @@
+import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
-// import React from 'react'
 import { Field, Form, Formik } from 'formik'
 import { AssessmentFormSchema } from '../utils/validation'
 import { InitialFeatureValues } from '../data/InitialFeatureValues'
 import { featuresItems } from '../data/FeatureItems'
 import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 import { useAuth } from '../context/AuthContext'
-import Swal from 'sweetalert2'
 
 interface Features {
   [key: string]: string | number
@@ -15,6 +14,14 @@ interface Features {
 const AssessmentForm = () => {
   const { token } = useAuth()
   const customAxios = useAxiosInterceptor()
+  const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
+  const [modalContent, setModalContent] = React.useState<{
+    title: string
+    body: string
+  } | null>({
+    title: '',
+    body: '',
+  })
 
   const handleSubmitForm = async (
     values: Features,
@@ -31,15 +38,7 @@ const AssessmentForm = () => {
       features.push(values.ability_to_present_ideas)
       features.push(values.communication_skills)
       features.push(values.performance_rating)
-      Swal.fire({
-        title: 'Submitting Evaluation',
-        text: 'Evaluation data is now being uploaded. Please wait...',
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading()
-        },
-      })
+      onOpen()
       const response = await customAxios.post(
         '/dataset/upload',
         {
@@ -52,18 +51,9 @@ const AssessmentForm = () => {
           },
         }
       )
-      Swal.close()
-      await Swal.fire({
-        icon: 'success',
-        title: 'Profile Recorded!',
-        text: response.data.message,
-        showConfirmButton: true,
-        confirmButtonText: 'Confirm',
-        confirmButtonColor: '#3b82f6',
-        customClass: {
-          title: 'text-xl',
-          htmlContainer: 'swal2-text-body',
-        },
+      setModalContent({
+        title: response.data.title,
+        body: response.data.message,
       })
       resetForm()
       setSubmitting(false)
@@ -120,7 +110,6 @@ const AssessmentForm = () => {
                   name="studentId"
                   variant="outline"
                   borderColor="gray.300"
-                  type="number"
                   focusBorderColor="purple.500"
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -226,6 +215,43 @@ const AssessmentForm = () => {
               >
                 Submit
               </Chakra.Button>
+
+              <Chakra.Modal isCentered isOpen={isOpen} onClose={onClose}>
+                <Chakra.ModalOverlay
+                  bg="blackAlpha.300"
+                  backdropFilter="blur(10px)"
+                />
+                <Chakra.ModalContent
+                  width={isSubmitting ? 'fit-content' : 'inherit'}
+                >
+                  {!isSubmitting && (
+                    <Chakra.ModalHeader>
+                      {modalContent?.title}
+                    </Chakra.ModalHeader>
+                  )}
+                  {!isSubmitting && (
+                    <Chakra.ModalCloseButton
+                      onClick={() => {
+                        setModalContent(null)
+                      }}
+                    />
+                  )}
+                  <Chakra.ModalBody>
+                    {isSubmitting ? (
+                      <Chakra.Spinner size="xl" />
+                    ) : (
+                      <Chakra.Text>{modalContent?.body}</Chakra.Text>
+                    )}
+                  </Chakra.ModalBody>
+                  <Chakra.ModalFooter>
+                    {!isSubmitting && (
+                      <Chakra.Button colorScheme="purple" onClick={onClose}>
+                        Confirm
+                      </Chakra.Button>
+                    )}
+                  </Chakra.ModalFooter>
+                </Chakra.ModalContent>
+              </Chakra.Modal>
             </Chakra.Stack>
           </Form>
         )}

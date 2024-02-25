@@ -3,7 +3,7 @@ import * as yup from 'yup'
 export const AssessmentFormSchema = yup.object().shape({
   studentId: yup
     .number()
-    .typeError('Invalid Student ID')
+    .typeError('Invalid ID number. Please enter a valid ID number.')
     .positive('Invalid Student ID')
     .required('Student ID is required'),
   general_appearance: yup

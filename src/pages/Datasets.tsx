@@ -3,6 +3,7 @@ import * as Chakra from '@chakra-ui/react'
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
 import { ThemeProvider, createTheme, Button } from '@mui/material'
+import { ChakraProvider } from '@chakra-ui/react'
 import type {} from '@mui/x-data-grid/themeAugmentation'
 import { setDatasetPage, setDatasetPageSize } from '../redux/datasetSlice'
 import { IoCheckmarkCircleOutline, IoCloseCircleOutline } from 'react-icons/io5'
@@ -14,9 +15,13 @@ const Datasets = () => {
   const dispatch = useDispatch()
   const axios = useAxiosInterceptor()
   const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
-  const { dataset, page, pageSize, total, isLoadingDataset } = useSelector(
-    (state: any) => state.dataset
-  )
+  const {
+    dataset,
+    datasetPage,
+    datasetPageSize,
+    datasetTotalItem,
+    isLoadingDataset,
+  } = useSelector((state: any) => state.dataset)
 
   const initialFocusRef = React.useRef(null)
   const [predictionQueue, setPredictionQueue] = React.useState<any | null>(null)
@@ -31,7 +36,7 @@ const Datasets = () => {
   })
 
   const columns: GridColDef[] = [
-    { field: 'data_id', headerName: 'ID', flex: 1 },
+    { field: 'data_id', headerName: 'Data ID', flex: 1 },
     { field: 'student_id', headerName: 'Student ID', flex: 1 },
     {
       field: 'general_appearance',
@@ -116,49 +121,43 @@ const Datasets = () => {
             Predict
           </Button>
         ) : (
-          <Chakra.Popover
-            initialFocusRef={initialFocusRef}
-            placement="left-end"
-            closeOnBlur={false}
-          >
-            <Chakra.PopoverTrigger>
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{
-                  backgroundColor: '#38B2AC',
-                  textTransform: 'none',
-                  ':hover': {
-                    backgroundColor: '#319795',
-                  },
-                }}
-                size="small"
-                disableElevation
-              >
-                Done
-              </Button>
-            </Chakra.PopoverTrigger>
-            <Chakra.PopoverContent
-              bg="teal.400"
-              color="white"
-              padding={4}
-              rounded="md"
+          <ChakraProvider>
+            <Chakra.Popover
+              initialFocusRef={initialFocusRef}
+              placement="bottom-end"
+              closeOnBlur={false}
             >
-              <Chakra.PopoverHeader fontWeight="bold" border="0">
-                Data is already predicted
-              </Chakra.PopoverHeader>
-              <Chakra.PopoverArrow bg="teal.400" />
-              <Chakra.PopoverCloseButton
-                alignSelf="flex-end"
-                position="relative"
-                right={-1}
-                top={-5}
-              />
-              <Chakra.PopoverBody>
-                Please check predictions section to view more details.
-              </Chakra.PopoverBody>
-            </Chakra.PopoverContent>
-          </Chakra.Popover>
+              <Chakra.PopoverTrigger>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#38B2AC',
+                    textTransform: 'none',
+                    ':hover': {
+                      backgroundColor: '#319795',
+                    },
+                  }}
+                  size="small"
+                  disableElevation
+                >
+                  Done
+                </Button>
+              </Chakra.PopoverTrigger>
+              <Chakra.Portal>
+                <Chakra.PopoverContent bg="teal.400" color="white" rounded="md">
+                  <Chakra.PopoverHeader fontWeight="bold" border="0">
+                    Data is already predicted
+                  </Chakra.PopoverHeader>
+                  <Chakra.PopoverArrow bg="teal.400" />
+                  <Chakra.PopoverCloseButton />
+                  <Chakra.PopoverBody>
+                    Please check predictions section to view more details.
+                  </Chakra.PopoverBody>
+                </Chakra.PopoverContent>
+              </Chakra.Portal>
+            </Chakra.Popover>
+          </ChakraProvider>
         ),
     },
   ]
@@ -216,11 +215,9 @@ const Datasets = () => {
 
   return (
     <Chakra.Stack padding={4} maxWidth="100%">
-      <Chakra.Stack alignItems="center">
-        <Chakra.Heading as="h1" size="xl" fontWeight={700}>
-          Evaluation Datasets
-        </Chakra.Heading>
-      </Chakra.Stack>
+      <Chakra.Heading as="h1" size="xl" fontWeight={700} textAlign="center">
+        Evaluation Datasets
+      </Chakra.Heading>
 
       <ThemeProvider theme={MuiTheme}>
         <DataGrid
@@ -232,14 +229,14 @@ const Datasets = () => {
           paginationMode="server"
           pageSizeOptions={[10, 20, 50]}
           paginationModel={{
-            page: page - 1,
-            pageSize: pageSize,
+            page: datasetPage - 1,
+            pageSize: datasetPageSize,
           }}
           onPaginationModelChange={(change: any) => {
             dispatch(setDatasetPage(change.page + 1))
             dispatch(setDatasetPageSize(change.pageSize))
           }}
-          rowCount={total}
+          rowCount={datasetTotalItem}
           loading={isLoadingDataset}
           disableRowSelectionOnClick
         />
@@ -250,7 +247,6 @@ const Datasets = () => {
         isOpen={isOpen}
         onClose={onClose}
         closeOnOverlayClick={isPredicting ? false : true}
-        lockFocusAcrossFrames
       >
         <Chakra.ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
         <Chakra.ModalContent width={isPredicting ? 'fit-content' : 'inherit'}>
