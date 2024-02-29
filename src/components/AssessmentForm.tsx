@@ -56,7 +56,7 @@ const AssessmentForm = () => {
         body: response.data.message,
       })
       resetForm()
-      setSubmitting(false)
+      setSubmitting(true)
     } catch (error) {
       console.log(error)
     }
@@ -243,13 +243,13 @@ const AssessmentForm = () => {
                       <Chakra.Text>{modalContent?.body}</Chakra.Text>
                     )}
                   </Chakra.ModalBody>
-                  <Chakra.ModalFooter>
-                    {!isSubmitting && (
+                  {!isSubmitting && (
+                    <Chakra.ModalFooter>
                       <Chakra.Button colorScheme="purple" onClick={onClose}>
                         Confirm
                       </Chakra.Button>
-                    )}
-                  </Chakra.ModalFooter>
+                    </Chakra.ModalFooter>
+                  )}
                 </Chakra.ModalContent>
               </Chakra.Modal>
             </Chakra.Stack>

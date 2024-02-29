@@ -193,8 +193,8 @@ const Datasets = () => {
       )
 
       setModalContent({
-        title: 'Employability Predicted!',
-        body: `The system has identified student #${predictionQueue.student_id} as <b>${response.data.prediction}</b>!`,
+        title: response.data.title,
+        body: response.data.body,
       })
       setHideModalButton(true)
       setIsPredicting(false)
@@ -266,14 +266,15 @@ const Datasets = () => {
             {!isPredicting && renderModalContent()}
             {isPredicting && <Chakra.Spinner size="xl" />}
           </Chakra.ModalBody>
-          <Chakra.ModalFooter>
-            {hideModalButton ||
-              (!isPredicting && (
+          {!isPredicting && (
+            <Chakra.ModalFooter>
+              {!hideModalButton && (
                 <Chakra.Button colorScheme="purple" onClick={handlePredict}>
                   Confirm
                 </Chakra.Button>
-              ))}
-          </Chakra.ModalFooter>
+              )}
+            </Chakra.ModalFooter>
+          )}
         </Chakra.ModalContent>
       </Chakra.Modal>
     </Chakra.Stack>

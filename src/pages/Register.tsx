@@ -2,6 +2,7 @@ import React from 'react'
 import * as Chakra from '@chakra-ui/react'
 import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 import RegisterForm from '../components/RegisterForm'
+import { NavLink } from 'react-router-dom'
 
 interface RegistrationValues {
   username: string
@@ -41,7 +42,7 @@ const Register = () => {
   return (
     <Chakra.Flex bg="gray.100" align="center" justify="center" h="100vh">
       {regisrationResponse ? (
-        <>
+        <Chakra.Stack w={420}>
           <Chakra.Heading
             as="h1"
             size="xl"
@@ -52,13 +53,27 @@ const Register = () => {
             {regisrationResponse.title}
           </Chakra.Heading>
           <p className="text-sm text-center">{regisrationResponse.message}</p>
-        </>
+          <Chakra.Button
+            as={NavLink}
+            to="/login"
+            color="gray.500"
+            rounded="md"
+            colorScheme="purple"
+            textColor="white"
+            _hover={{
+              background: 'purple.600',
+            }}
+            marginTop={4}
+          >
+            Go to Login
+          </Chakra.Button>
+        </Chakra.Stack>
       ) : (
         <RegisterForm
           onSubmit={handleSubmit}
           registrationError={registrationError}
           onCloseError={handleCloseError}
-          toLoginLink='/login'
+          toLoginLink="/login"
         />
       )}
     </Chakra.Flex>

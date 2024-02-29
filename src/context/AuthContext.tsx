@@ -1,6 +1,6 @@
 import React from 'react'
-import axios from '../api/axios'
 import { decodeUserIntoken } from '../utils/tokenDecoder'
+import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 
 type AuthProviderProps = {
   children: React.ReactNode
@@ -32,6 +32,7 @@ const Context = React.createContext<{
 const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = React.useState(null)
   const [isUserLoading, setIsUserLoading] = React.useState(true)
+  const axios = useAxiosInterceptor()
 
   const getToken = (): Token => {
     const userToken = localStorage.getItem('accessToken')
@@ -51,6 +52,7 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData)
       setIsUserLoading(false)
     } catch (error) {
+      setIsUserLoading(false)
       throw error
     }
   }

@@ -12,9 +12,9 @@ const Login = () => {
   const { loginUser } = useAuth()
   const [loginError, setLoginError] = React.useState(null)
 
-  const handleSubmit = (values: LoginValues) => {
+  const handleSubmit = async (values: LoginValues) => {
     try {
-      loginUser(values)
+       await loginUser(values)
     } catch (error: any) {
       setLoginError(error.message)
     }
