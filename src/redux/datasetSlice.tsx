@@ -23,6 +23,9 @@ const datasetSlice = createSlice({
     setDatasetTotalItems: (state, action) => {
       state.datasetTotalItem = action.payload
     },
+    triggerDatasetFetch: (state) => {
+      state.isLoadingDataset = !state.isLoadingDataset
+    }
   },
 })
 
@@ -31,5 +34,6 @@ export const {
   setDatasetPage,
   setDatasetPageSize,
   setDatasetTotalItems,
+  triggerDatasetFetch
 } = datasetSlice.actions
 export default datasetSlice.reducer

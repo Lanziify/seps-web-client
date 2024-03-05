@@ -43,7 +43,6 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loginUser = async (values: LoginValues) => {
     try {
-      setIsUserLoading(true)
       const response = await axios.post('/login', {
         ...values,
       })
@@ -72,7 +71,6 @@ const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   React.useEffect(() => {
     if (token) {
-      setIsUserLoading(true)
       const userData: any = decodeUserIntoken(token)
       setUser(userData)
       setIsUserLoading(false)

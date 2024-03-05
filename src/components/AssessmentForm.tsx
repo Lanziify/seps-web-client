@@ -13,6 +13,7 @@ interface Features {
 
 const AssessmentForm = () => {
   const { token } = useAuth()
+  const cancelRef = React.useRef(null)
   const customAxios = useAxiosInterceptor()
   const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
   const [modalContent, setModalContent] = React.useState<{
@@ -57,8 +58,11 @@ const AssessmentForm = () => {
       })
       resetForm()
       setSubmitting(true)
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      setModalContent({
+        title: error.title,
+        body: error.message,
+      })
     }
   }
 
@@ -80,7 +84,12 @@ const AssessmentForm = () => {
         }) => (
           <Form>
             <Chakra.Stack spacing={3}>
-              <Chakra.Heading as="h1" size="xl" textAlign="center">
+              <Chakra.Heading
+                as="h1"
+                size="xl"
+                fontWeight={900}
+                textAlign="center"
+              >
                 Student Employability Prediction Form
               </Chakra.Heading>
               <Chakra.Text textAlign="center" marginBottom={12}>
@@ -120,9 +129,13 @@ const AssessmentForm = () => {
                 </Chakra.FormErrorMessage>
               </Chakra.FormControl>
 
-              <Chakra.TableContainer borderWidth={1} rounded="md">
+              <Chakra.TableContainer background="gray.500" rounded="xl">
                 <Chakra.Table variant="simple">
-                  <Chakra.TableCaption margin={0}>
+                  <Chakra.TableCaption
+                    margin={0}
+                    color="white"
+                    background="gray.600"
+                  >
                     Rating Scale
                   </Chakra.TableCaption>
                   <Chakra.Thead>
@@ -130,7 +143,13 @@ const AssessmentForm = () => {
                       {Array(5)
                         .fill(undefined)
                         .map((_, i) => (
-                          <Chakra.Th key={i} textAlign={'center'} fontSize={16}>
+                          <Chakra.Th
+                            key={i}
+                            textAlign={'center'}
+                            fontSize={16}
+                            color="white"
+                            borderLeftWidth={1}
+                          >
                             {i + 1}
                           </Chakra.Th>
                         ))}
@@ -141,9 +160,13 @@ const AssessmentForm = () => {
                       {Array(5)
                         .fill(undefined)
                         .map((_, i) => (
-                          <Chakra.Td key={i} textAlign={'center'}>
+                          <Chakra.Td
+                            key={i}
+                            textAlign={'center'}
+                            borderLeftWidth={1}
+                          >
                             <Chakra.Radio
-                              borderColor="gray.400"
+                              borderColor="white"
                               isChecked={false}
                             />
                           </Chakra.Td>
@@ -153,12 +176,7 @@ const AssessmentForm = () => {
                 </Chakra.Table>
               </Chakra.TableContainer>
 
-              <Chakra.Text
-                textAlign="center"
-                fontSize={12}
-                fontWeight={700}
-                marginBottom={2}
-              >
+              <Chakra.Text textAlign="center" fontWeight={700} marginBottom={8}>
                 Please rate each category on a scale of 1 to 5, with 1 being the
                 lowest and 5 being the highest.
               </Chakra.Text>
@@ -216,42 +234,47 @@ const AssessmentForm = () => {
                 Submit
               </Chakra.Button>
 
-              <Chakra.Modal isCentered isOpen={isOpen} onClose={onClose}>
-                <Chakra.ModalOverlay
+              <Chakra.AlertDialog
+                motionPreset="scale"
+                leastDestructiveRef={cancelRef}
+                closeOnEsc={false}
+                onClose={onClose}
+                isOpen={isOpen}
+                isCentered
+              >
+                <Chakra.AlertDialogOverlay
                   bg="blackAlpha.300"
                   backdropFilter="blur(10px)"
                 />
-                <Chakra.ModalContent
+                <Chakra.AlertDialogContent
                   width={isSubmitting ? 'fit-content' : 'inherit'}
                 >
                   {!isSubmitting && (
-                    <Chakra.ModalHeader>
+                    <Chakra.AlertDialogHeader>
                       {modalContent?.title}
-                    </Chakra.ModalHeader>
+                    </Chakra.AlertDialogHeader>
                   )}
-                  {!isSubmitting && (
-                    <Chakra.ModalCloseButton
-                      onClick={() => {
-                        setModalContent(null)
-                      }}
-                    />
-                  )}
-                  <Chakra.ModalBody>
+                  <Chakra.AlertDialogBody>
                     {isSubmitting ? (
-                      <Chakra.Spinner size="xl" />
+                      <Chakra.Spinner size="xl" margin="auto" />
                     ) : (
                       <Chakra.Text>{modalContent?.body}</Chakra.Text>
                     )}
-                  </Chakra.ModalBody>
+                  </Chakra.AlertDialogBody>
                   {!isSubmitting && (
-                    <Chakra.ModalFooter>
-                      <Chakra.Button colorScheme="purple" onClick={onClose}>
+                    <Chakra.AlertDialogFooter>
+                      <Chakra.Button
+                        ref={cancelRef}
+                        onClick={onClose}
+                        isDisabled={isSubmitting}
+                        colorScheme="purple"
+                      >
                         Confirm
                       </Chakra.Button>
-                    </Chakra.ModalFooter>
+                    </Chakra.AlertDialogFooter>
                   )}
-                </Chakra.ModalContent>
-              </Chakra.Modal>
+                </Chakra.AlertDialogContent>
+              </Chakra.AlertDialog>
             </Chakra.Stack>
           </Form>
         )}

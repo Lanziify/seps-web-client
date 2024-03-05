@@ -31,7 +31,7 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
   })
 
   return (
-    <Chakra.Box bg="white" p={6} rounded="md" margin={8} w={420}>
+    <Chakra.Box bg="white" p={6} rounded="2xl" margin={8} w={420} shadow="xl">
       <Formik
         initialValues={{
           email: '',
@@ -136,6 +136,7 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
                           <IoEye size={18} className="text-gray-400" />
                         )
                       }
+                      isDisabled={isSubmitting}
                     />
                   </Chakra.InputRightElement>
                 </Chakra.InputGroup>

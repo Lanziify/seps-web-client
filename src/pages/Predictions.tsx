@@ -9,7 +9,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { IPredictions } from '../types/IPredictions'
 import { setDatasetPage, setDatasetPageSize } from '../redux/datasetSlice'
-import moment from 'moment'
 import { ChakraProvider } from '@chakra-ui/react'
 
 const Predictions = () => {
@@ -57,7 +56,6 @@ const Predictions = () => {
     {
       field: 'dataset_id',
       headerName: 'Data ID',
-      flex: 1,
     },
     {
       field: 'classification',
@@ -70,8 +68,18 @@ const Predictions = () => {
     {
       field: 'prediction_time',
       headerName: 'Prediction Time',
-      valueFormatter: (params: GridValueFormatterParams) =>
-        moment(params.value.prediction_time).format('MM-DD-YYYY | hh:mm A'),
+      valueFormatter: (params: GridValueFormatterParams) => {
+        const date = new Date(params.value)
+        return date.toLocaleDateString('en-PH', {
+          year: 'numeric',
+          weekday: 'short',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: "Asia/Manila"
+        }).replace(/\//g, "-")
+      },
       flex: 1,
     },
   ]

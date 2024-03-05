@@ -8,18 +8,38 @@ import {
   IoSettings,
 } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
+import AssessmentForm from './AssessmentForm'
 
 const Header = () => {
+  const { scrollYProgress } = useScroll()
+  const location = useLocation()
+  const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
+  const headerRef = React.useRef<HTMLDivElement>(null)
   const initialFocusRef = React.useRef(null)
   const { user, logoutUser } = useAuth()
+
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1])
+
+  const handleEvaluationClick = () => {
+    if (location.pathname.slice(1) === 'home') return
+    onOpen()
+  }
+
   return (
     <Chakra.Stack
+      ref={headerRef}
       position="sticky"
       backgroundColor="white"
       top={0}
-      boxShadow="sm"
       zIndex={10}
     >
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 border-b"
+        style={{ opacity: opacity }}
+      />
+
       <Chakra.Flex
         as="header"
         width="100%"
@@ -46,7 +66,12 @@ const Header = () => {
           </Chakra.InputLeftElement>
         </Chakra.InputGroup>
         <Chakra.Stack direction="row" hideBelow="sm">
-          <Chakra.Button colorScheme="gray" size="sm" hideBelow="md">
+          <Chakra.Button
+            colorScheme={location.pathname.slice(1) === 'home' ? "gray" : "purple"}
+            size="sm"
+            hideBelow="md"
+            onClick={handleEvaluationClick}
+          >
             Evaluate Student
           </Chakra.Button>
           <Chakra.IconButton
@@ -83,7 +108,7 @@ const Header = () => {
                 size="sm"
                 icon={
                   <Chakra.Avatar size="sm" name={user.username}>
-                    <Chakra.AvatarBadge boxSize='1.25em' bg='green.500' />
+                    <Chakra.AvatarBadge boxSize="1.25em" bg="green.500" />
                   </Chakra.Avatar>
                 }
                 color="white"
@@ -98,7 +123,7 @@ const Header = () => {
                 <Chakra.PopoverArrow bg="white" />
                 <Chakra.PopoverCloseButton />
                 <Chakra.PopoverBody>
-                  <Chakra.Flex gap={4} alignItems="center">
+                  <Chakra.Flex gap={4} alignItems="center" height={100}>
                     <Chakra.Avatar
                       size="lg"
                       name={user.username}
@@ -122,7 +147,9 @@ const Header = () => {
                   </Chakra.Flex>
                 </Chakra.PopoverBody>
                 <Chakra.PopoverFooter>
-                  <Chakra.Button size='sm' width='100%' onClick={logoutUser}>Logout</Chakra.Button>
+                  <Chakra.Button size="sm" width="100%" onClick={logoutUser}>
+                    Logout
+                  </Chakra.Button>
                 </Chakra.PopoverFooter>
               </Chakra.PopoverContent>
             </Chakra.Portal>
@@ -137,6 +164,14 @@ const Header = () => {
           hideFrom="sm"
         />
       </Chakra.Flex>
+
+      <Chakra.Modal onClose={onClose} isOpen={isOpen} >
+        <Chakra.ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+        <Chakra.ModalContent maxW="2xl" margin={0} >
+          <AssessmentForm />
+          <Chakra.ModalCloseButton />
+        </Chakra.ModalContent>
+      </Chakra.Modal>
     </Chakra.Stack>
   )
 }

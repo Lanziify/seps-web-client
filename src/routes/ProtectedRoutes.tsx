@@ -47,7 +47,13 @@ const ProtectedRoutes = () => {
         })
       }
     }
-    fetchPredictions()
+    const predictionShortPoll = setInterval(() => {
+      fetchPredictions()
+    }, 5000)
+
+    return () => {
+      clearInterval(predictionShortPoll)
+    }
   }, [predictionPage, predictionPageSize])
 
   React.useEffect(() => {
@@ -71,7 +77,14 @@ const ProtectedRoutes = () => {
         })
       }
     }
-    fetchDatasets()
+
+    const dataShortPoll = setInterval(() => {
+      fetchDatasets()
+    }, 5000)
+
+    return () => {
+      clearInterval(dataShortPoll)
+    }
   }, [datesetPage, dasetPageSize])
 
   if (!token && !user) {
