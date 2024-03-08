@@ -22,7 +22,7 @@ const ProtectedRoutes = () => {
   const { predictionPage, predictionPageSize } = useSelector(
     (state: any) => state.predictions
   )
-  const { datesetPage, dasetPageSize } = useSelector(
+  const { datasetPage, datasetPageSize } = useSelector(
     (state: any) => state.dataset
   )
 
@@ -60,7 +60,7 @@ const ProtectedRoutes = () => {
     const fetchDatasets = async () => {
       try {
         const response = await axios.get(
-          `/dataset?page=${datesetPage}&limit=${dasetPageSize}`
+          `/dataset?page=${datasetPage}&limit=${datasetPageSize}`
         )
         const stringifiedResponse = JSON.stringify(response.data.datasets)
         if (stringifiedResponse) {
@@ -85,7 +85,7 @@ const ProtectedRoutes = () => {
     return () => {
       clearInterval(dataShortPoll)
     }
-  }, [datesetPage, dasetPageSize])
+  }, [datasetPage, datasetPageSize])
 
   if (!token && !user) {
     return <Navigate to="/login" state={{ from: location }} replace />

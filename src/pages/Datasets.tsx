@@ -1,6 +1,11 @@
 import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridToolbar,
+} from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
 import { ThemeProvider, createTheme, Button } from '@mui/material'
 import { ChakraProvider } from '@chakra-ui/react'
@@ -9,6 +14,8 @@ import { setDatasetPage, setDatasetPageSize } from '../redux/datasetSlice'
 import { IoCheckmarkCircleOutline, IoCloseCircleOutline } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
 import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
+import moment from 'moment'
+import SkeletonTableLoader from '../components/SkeletonTableLoader'
 
 const Datasets = () => {
   const { token } = useAuth()
@@ -165,6 +172,9 @@ const Datasets = () => {
   const MuiTheme = createTheme({
     palette: {
       mode: 'light',
+      primary: {
+        main: '#805AD5'
+      },
     },
     components: {
       MuiDataGrid: {
@@ -215,19 +225,48 @@ const Datasets = () => {
 
   return (
     <Chakra.Stack padding={4} maxWidth="100%">
-      <Chakra.Heading as="h1" size="xl" fontWeight={700} textAlign="center">
+      <Chakra.Heading
+        as="h1"
+        size="xl"
+        fontWeight={700}
+        textAlign="center"
+        marginBottom={8}
+      >
         Evaluation Datasets
       </Chakra.Heading>
 
       <ThemeProvider theme={MuiTheme}>
         <DataGrid
+          slots={{ toolbar: GridToolbar, loadingOverlay: SkeletonTableLoader }}
+          slotProps={{
+            toolbar: {
+              csvOptions: {
+                fields: [
+                  'data_id',
+                  'general_appearance',
+                  'manner_of_speaking',
+                  'physical_condition',
+                  'mental_alertness',
+                  'self_confidence',
+                  'ability_to_present_ideas',
+                  'communication_skills',
+                  'performance_rating',
+                ],
+                fileName: `SEPS-Dataset - ${moment().format(
+                  'YYYY-MM-DD hh:mm:ss'
+                )}`,
+              },
+              printOptions: {
+                disableToolbarButton: true,
+              },
+            },
+          }}
           autoHeight
           getRowId={(row) => row.data_id}
           rows={dataset}
           columns={columns}
-          // checkboxSelection
           paginationMode="server"
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[datasetPageSize, 20, 50]}
           paginationModel={{
             page: datasetPage - 1,
             pageSize: datasetPageSize,

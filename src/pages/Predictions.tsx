@@ -5,11 +5,17 @@ import {
   GridColDef,
   GridRenderCellParams,
   GridValueFormatterParams,
+  GridToolbar,
 } from '@mui/x-data-grid'
 import { useDispatch, useSelector } from 'react-redux'
 import { IPredictions } from '../types/IPredictions'
-import { setDatasetPage, setDatasetPageSize } from '../redux/datasetSlice'
 import { ChakraProvider } from '@chakra-ui/react'
+import {
+  setPredictionPage,
+  setPredictionPageSize,
+} from '../redux/predictionSlice'
+import moment from 'moment'
+import SkeletonTableLoader from '../components/SkeletonTableLoader'
 
 const Predictions = () => {
   const {
@@ -70,15 +76,17 @@ const Predictions = () => {
       headerName: 'Prediction Time',
       valueFormatter: (params: GridValueFormatterParams) => {
         const date = new Date(params.value)
-        return date.toLocaleDateString('en-PH', {
-          year: 'numeric',
-          weekday: 'short',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: "Asia/Manila"
-        }).replace(/\//g, "-")
+        return date
+          .toLocaleDateString('en-PH', {
+            year: 'numeric',
+            weekday: 'short',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Asia/Manila',
+          })
+          .replace(/\//g, '-')
       },
       flex: 1,
     },
@@ -87,6 +95,9 @@ const Predictions = () => {
   const MuiTheme = createTheme({
     palette: {
       mode: 'light',
+      primary: {
+        main: '#805AD5'
+      },
     },
     components: {
       MuiDataGrid: {
@@ -99,26 +110,53 @@ const Predictions = () => {
     },
   })
 
+
   return (
     <Chakra.Stack padding={4} maxWidth="100%">
-      <Chakra.Heading as="h1" size="xl" fontWeight={700} textAlign="center">
+      <Chakra.Heading
+        as="h1"
+        size="xl"
+        fontWeight={700}
+        textAlign="center"
+        marginBottom={8}
+      >
         Predictions Table
       </Chakra.Heading>
       <ThemeProvider theme={MuiTheme}>
         <DataGrid
+          slots={{ toolbar: GridToolbar, loadingOverlay: SkeletonTableLoader}}
+          slotProps={{
+            toolbar: {
+              csvOptions: {
+                fields: [
+                  'prediction_id',
+                  'predicted_by',
+                  'dataset_id',
+                  'classification',
+                  'prediction_time',
+                ],
+                fileName: `SEPS-Predictions - ${moment().format(
+                  'YYYY-MM-DD hh:mm:ss'
+                )}`,
+              },
+              printOptions: {
+                disableToolbarButton: true,
+              },
+            },
+          }}
           autoHeight
           getRowId={(row) => row.prediction_id}
           rows={predictions}
           columns={columns}
           paginationMode="server"
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[predictionPageSize, 20, 50]}
           paginationModel={{
             page: predictionPage - 1,
             pageSize: predictionPageSize,
           }}
           onPaginationModelChange={(change: any) => {
-            dispatch(setDatasetPage(change.page + 1))
-            dispatch(setDatasetPageSize(change.pageSize))
+            dispatch(setPredictionPage(change.page + 1))
+            dispatch(setPredictionPageSize(change.pageSize))
           }}
           rowCount={predictionTotalItems}
           loading={isLoadingPrediction}

@@ -15,9 +15,11 @@ const predictionSlice = createSlice({
       state.isLoadingPrediction = false
     },
     setPredictionPage: (state, action) => {
+      state.isLoadingPrediction = true
       state.predictionPage = action.payload
     },
     setPredictionPageSize: (state, action) => {
+      state.isLoadingPrediction = true
       state.predictionPageSize = action.payload
     },
     setPredictionTotalItems: (state, action) => {

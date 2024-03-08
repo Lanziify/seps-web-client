@@ -16,11 +16,15 @@ const Header = () => {
   const { scrollYProgress } = useScroll()
   const location = useLocation()
   const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
-  const headerRef = React.useRef<HTMLDivElement>(null)
   const initialFocusRef = React.useRef(null)
   const { user, logoutUser } = useAuth()
 
   const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1])
+  const backgroundOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.1],
+    ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.75)']
+  )
 
   const handleEvaluationClick = () => {
     if (location.pathname.slice(1) === 'home') return
@@ -28,18 +32,17 @@ const Header = () => {
   }
 
   return (
-    <Chakra.Stack
-      ref={headerRef}
-      position="sticky"
-      backgroundColor="white"
-      top={0}
-      zIndex={10}
-    >
+    <Chakra.Stack position="sticky" top={0} zIndex={10}>
       <motion.div
-        className="absolute bottom-0 left-0 right-0 border-b"
+        style={{
+          background: backgroundOpacity,
+        }}
+        className="absolute top-0 left-0 right-0 bottom-0 backdrop-blur-md  z-0"
+      />
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 border-b z-20"
         style={{ opacity: opacity }}
       />
-
       <Chakra.Flex
         as="header"
         width="100%"
@@ -56,6 +59,7 @@ const Header = () => {
           fontWeight={900}
           flexShrink={0}
           color="purple.500"
+          zIndex={10}
         >
           Student Employability Prediction
         </Chakra.Text>
@@ -67,7 +71,9 @@ const Header = () => {
         </Chakra.InputGroup>
         <Chakra.Stack direction="row" hideBelow="sm">
           <Chakra.Button
-            colorScheme={location.pathname.slice(1) === 'home' ? "gray" : "purple"}
+            colorScheme={
+              location.pathname.slice(1) === 'home' ? 'gray' : 'purple'
+            }
             size="sm"
             hideBelow="md"
             onClick={handleEvaluationClick}
@@ -165,9 +171,9 @@ const Header = () => {
         />
       </Chakra.Flex>
 
-      <Chakra.Modal onClose={onClose} isOpen={isOpen} >
+      <Chakra.Modal onClose={onClose} isOpen={isOpen}>
         <Chakra.ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-        <Chakra.ModalContent maxW="2xl" margin={0} >
+        <Chakra.ModalContent maxW="2xl" margin={0}>
           <AssessmentForm />
           <Chakra.ModalCloseButton />
         </Chakra.ModalContent>
