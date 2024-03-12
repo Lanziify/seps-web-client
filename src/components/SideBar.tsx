@@ -1,20 +1,25 @@
+import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
 import { menuItems } from '../data/MenuItems'
 import { NavLink } from 'react-router-dom'
 import { IoLogOut } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
+import { SideBarProps } from '../types/SideBarProps'
 
-const SideBar = () => {
+const SideBar = (props: SideBarProps) => {
   const { logoutUser } = useAuth()
+  const sidebarRef = React.useRef(null)
+
+
   return (
     <Chakra.Stack
+      ref={sidebarRef}
       position="sticky"
       left={0}
       bottom={0}
-      // width="sm"
-      minWidth="15rem"
-      height="calc(100vh - 5.5rem)"
-      className="top-[75px]"
+      w={props.isMenuOpen ? '3.7rem' : "15rem"}
+      height="calc(100vh - 5rem)"
+      className="top-[65px]"
       spacing={0}
       hideBelow="md"
     >
@@ -40,8 +45,9 @@ const SideBar = () => {
               background="transparent"
               leftIcon={item.icon}
               justifyContent="flex-start"
+              transition="all 0.2s"
             >
-              {item.name}
+              {!props.isMenuOpen ? item.name : null}
             </Chakra.Button>
           ))}
         </Chakra.Stack>
@@ -49,14 +55,14 @@ const SideBar = () => {
         <Chakra.Button
           color="gray.500"
           background="transparent"
-          leftIcon={<IoLogOut />}
+          leftIcon={<IoLogOut size={24} />}
           _hover={{
             textColor: 'red.400',
             background: 'red.50',
           }}
           onClick={logoutUser}
         >
-          Logout
+          {!props.isMenuOpen ? 'Logout' : null}
         </Chakra.Button>
       </Chakra.Stack>
     </Chakra.Stack>

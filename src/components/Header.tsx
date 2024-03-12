@@ -11,8 +11,9 @@ import { useAuth } from '../context/AuthContext'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
 import AssessmentForm from './AssessmentForm'
+import { HeaderProps } from '../types/HeaderProps'
 
-const Header = () => {
+const Header = (props: HeaderProps) => {
   const { scrollYProgress } = useScroll()
   const location = useLocation()
   const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
@@ -53,18 +54,28 @@ const Header = () => {
         padding={3}
         gap={3}
       >
-        <Chakra.Text
-          as="h1"
-          fontSize={14}
-          fontWeight={900}
-          flexShrink={0}
-          color="purple.500"
-          zIndex={10}
-        >
-          Student Employability Prediction
-        </Chakra.Text>
-        <Chakra.InputGroup width="100%" maxWidth="2xl" hideBelow="md">
-          <Chakra.Input variant="filled" placeholder="Search" />
+        <Chakra.Flex alignItems="center" gap={4} flexShrink={0}>
+          <Chakra.IconButton
+            aria-label="profile"
+            size="sm"
+            rounded="full"
+            icon={<IoMenuOutline size={24} />}
+            color="purple.400"
+            onClick={props.toggleMenu}
+          />
+          <Chakra.Text
+            as="h1"
+            fontSize={14}
+            fontWeight={900}
+            
+            color="purple.500"
+            zIndex={10}
+          >
+            Student Employability Prediction
+          </Chakra.Text>
+        </Chakra.Flex>
+        <Chakra.InputGroup width="100%" size='sm' maxWidth="2xl" hideBelow="md">
+          <Chakra.Input variant="filled" rounded='lg' placeholder="Search" />
           <Chakra.InputLeftElement>
             <IoSearchOutline size={18} />
           </Chakra.InputLeftElement>
@@ -84,21 +95,21 @@ const Header = () => {
             aria-label="profile"
             size="sm"
             background="transparent"
-            icon={<IoFileTray size={18} />}
+            icon={<IoFileTray size={24} />}
             color="gray.400"
           />
           <Chakra.IconButton
             aria-label="profile"
             size="sm"
             background="transparent"
-            icon={<IoSettings size={18} />}
+            icon={<IoSettings size={24} />}
             color="gray.400"
           />
           <Chakra.IconButton
             aria-label="profile"
             size="sm"
             background="purple.400"
-            icon={<IoPerson size={18} />}
+            icon={<IoPerson size={24} />}
             color="white"
             hideFrom="md"
           />

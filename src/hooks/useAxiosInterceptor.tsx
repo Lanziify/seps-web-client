@@ -13,8 +13,8 @@ const useAxiosInterceptor = () => {
   const { token } = useAuth()
   const refresh = useRefreshToken()
 
-  const isTokenExpired = (token: { accessToken: string }) => {
-    const decodedToken: any = jwtDecode(token.accessToken)
+  const isTokenExpired = (token: string) => {
+    const decodedToken: any = jwtDecode(token)
     const currentTime = Date.now() / 1000
     return decodedToken.exp < currentTime
   }
@@ -24,13 +24,12 @@ const useAxiosInterceptor = () => {
       async (config) => {
         if (token) {
           if (!isTokenExpired(token)) {
-            config.headers['Authorization'] = `Bearer ${token.accessToken}`
+            config.headers['Authorization'] = `Bearer ${token}`
           } else {
             const newAccessToken = await refresh()
             config.headers['Authorization'] = `Bearer ${newAccessToken}`
           }
         }
-
         return config
       },
       (error) => {

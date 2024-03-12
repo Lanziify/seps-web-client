@@ -4,20 +4,22 @@ import { useAuth } from '../context/AuthContext'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Header from '../components/Header'
 import SideBar from '../components/SideBar'
-import axios from '../api/axios'
 import { useDispatch, useSelector } from 'react-redux'
 import { setDataset, setDatasetTotalItems } from '../redux/datasetSlice'
 import {
   setPredictionTotalItems,
   setPredictionsList,
 } from '../redux/predictionSlice'
+import Preloader from '../components/Preloader'
+import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 
 const ProtectedRoutes = () => {
   const { user, isUserLoading, token } = useAuth()
   const location = useLocation()
   const dispatch = useDispatch()
-
+  const axios = useAxiosInterceptor()
   const toast = Chakra.useToast()
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
 
   const { predictionPage, predictionPageSize } = useSelector(
     (state: any) => state.predictions
@@ -68,6 +70,7 @@ const ProtectedRoutes = () => {
           dispatch(setDatasetTotalItems(response.data.total_items))
         }
       } catch (error: any) {
+        console.log(error)
         toast({
           title: error.message,
           position: 'top',
@@ -91,11 +94,15 @@ const ProtectedRoutes = () => {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  if (isUserLoading) return
+  if (isUserLoading) return <Preloader />
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen(previous => !previous)
+  }
 
   return (
     <Chakra.Stack>
-      <Header />
+      <Header toggleMenu={handleMenuToggle} />
       <Chakra.Container
         as="main"
         width="100%"
@@ -104,7 +111,7 @@ const ProtectedRoutes = () => {
         padding={0}
       >
         <Chakra.Flex>
-          <SideBar />
+          <SideBar isMenuOpen={isMenuOpen} />
           <Chakra.Stack width="100%" overflow="auto">
             <Outlet />
           </Chakra.Stack>

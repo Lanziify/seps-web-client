@@ -1,11 +1,12 @@
 import * as React from 'react'
 import * as Chakra from '@chakra-ui/react'
-import { Field, Form, Formik } from 'formik'
+import { Field, Form, Formik, FormikProps } from 'formik'
 import { AssessmentFormSchema } from '../utils/validation'
 import { InitialFeatureValues } from '../data/InitialFeatureValues'
-import { featuresItems } from '../data/FeatureItems'
 import useAxiosInterceptor from '../hooks/useAxiosInterceptor'
 import { useAuth } from '../context/AuthContext'
+import { likertScale } from '../data/likertScale'
+import LottieLoading from './LottieLoading'
 
 interface Features {
   [key: string]: string | number
@@ -16,17 +17,20 @@ const AssessmentForm = () => {
   const cancelRef = React.useRef(null)
   const customAxios = useAxiosInterceptor()
   const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
-  const [modalContent, setModalContent] = React.useState<{
+  const [alertContent, setAlertContent] = React.useState<{
     title: string
     body: string
+    isResponse: boolean
   } | null>({
     title: '',
     body: '',
+    isResponse: false,
   })
 
   const handleSubmitForm = async (
+    event: React.MouseEvent<Element>,
     values: Features,
-    { setSubmitting, resetForm }: any
+    props: FormikProps<Features>
   ) => {
     try {
       const features = []
@@ -39,31 +43,97 @@ const AssessmentForm = () => {
       features.push(values.ability_to_present_ideas)
       features.push(values.communication_skills)
       features.push(values.performance_rating)
-      onOpen()
+
+      props.setSubmitting(true)
+
+      if (features.includes(0) || Object.keys(props.errors).length > 0) {
+        setAlertContent({
+          title: 'Form Error',
+          body: 'It seeems like you are trying to submit a form with invalid or empty fields. Please try again.',
+          isResponse: false,
+        })
+        props.setSubmitting(false)
+        return
+      }
+
       const response = await customAxios.post(
-        '/dataset/upload',
+        (event.target as HTMLElement).id === 'upload'
+          ? '/upload'
+          : '/upload_predict',
         {
           studentId: values.studentId,
           features: features,
         },
         {
           headers: {
-            Authorization: token?.accessToken,
+            Authorization: token,
           },
         }
       )
-      setModalContent({
+
+      setAlertContent({
         title: response.data.title,
         body: response.data.message,
+        isResponse: true,
       })
-      resetForm()
-      setSubmitting(true)
+
+      props.resetForm()
+      props.setSubmitting(false)
     } catch (error: any) {
-      setModalContent({
+      setAlertContent({
         title: error.title,
         body: error.message,
+        isResponse: true,
       })
+      props.setSubmitting(false)
     }
+  }
+
+  const handleOptionButtonClick = () => {
+    onOpen()
+    setAlertContent({
+      title: 'Select options',
+      body: 'Please select an option',
+      isResponse: false,
+    })
+  }
+
+  const renderModalContent = () => {
+    if (alertContent?.body) {
+      return (
+        <div dangerouslySetInnerHTML={{ __html: alertContent?.body }}></div>
+      )
+    } else {
+      return null
+    }
+  }
+
+  const handleMouseEvents = (event: React.MouseEvent, isVisible: boolean) => {
+    const card = event.currentTarget.getBoundingClientRect()
+    const mouseX = event.clientX - card.left
+    const mouseY = event.clientY - card.top
+
+    const childElement = event.currentTarget.children[3] as HTMLElement
+
+    childElement.style.transition =
+      'width 0.4s, height 0.4s, opacity 0.4s, visibility 0.4s'
+
+    if (!childElement.style.width || !childElement.style.height) {
+      childElement.style.width = '0px'
+      childElement.style.height = '0px'
+      childElement.style.transition = 'width 0.4s, height 0.4s, opacity 0.4s, visibility 0.4s'
+    }
+
+    childElement.style.visibility = isVisible ? 'visible' : 'hidden'
+    childElement.style.opacity = isVisible ? '1' : '0'
+    childElement.style.width = isVisible
+      ? `${event.currentTarget.scrollWidth * 2.5}px`
+      : '0px'
+    childElement.style.height = isVisible
+      ? `${event.currentTarget.scrollWidth * 2.5}px`
+      : '0px'
+    childElement.style.top = mouseY + 'px'
+    childElement.style.left = mouseX + 'px'
   }
 
   return (
@@ -72,16 +142,9 @@ const AssessmentForm = () => {
         initialValues={InitialFeatureValues}
         validationSchema={AssessmentFormSchema}
         enableReinitialize={true}
-        onSubmit={handleSubmitForm}
+        onSubmit={() => {}}
       >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          setFieldValue,
-          isSubmitting,
-        }) => (
+        {(formikProps) => (
           <Form>
             <Chakra.Stack spacing={3}>
               <Chakra.Heading
@@ -102,7 +165,10 @@ const AssessmentForm = () => {
               </Chakra.Text>
 
               <Chakra.FormControl
-                isInvalid={!!errors.studentId && !!touched.studentId}
+                isInvalid={
+                  !!formikProps.errors.studentId &&
+                  !!formikProps.touched.studentId
+                }
                 marginBottom={4}
               >
                 <Chakra.FormLabel
@@ -120,75 +186,26 @@ const AssessmentForm = () => {
                   variant="outline"
                   borderColor="gray.300"
                   focusBorderColor="purple.500"
-                  onChange={handleChange}
-                  disabled={isSubmitting}
+                  onChange={formikProps.handleChange}
+                  disabled={formikProps.isSubmitting}
                   autoFocus
                 />
                 <Chakra.FormErrorMessage>
-                  {errors.studentId}
+                  {formikProps.errors.studentId}
                 </Chakra.FormErrorMessage>
               </Chakra.FormControl>
 
-              <Chakra.TableContainer background="gray.500" rounded="xl">
-                <Chakra.Table variant="simple">
-                  <Chakra.TableCaption
-                    margin={0}
-                    color="white"
-                    background="gray.600"
-                  >
-                    Rating Scale
-                  </Chakra.TableCaption>
-                  <Chakra.Thead>
-                    <Chakra.Tr>
-                      {Array(5)
-                        .fill(undefined)
-                        .map((_, i) => (
-                          <Chakra.Th
-                            key={i}
-                            textAlign={'center'}
-                            fontSize={16}
-                            color="white"
-                            borderLeftWidth={1}
-                          >
-                            {i + 1}
-                          </Chakra.Th>
-                        ))}
-                    </Chakra.Tr>
-                  </Chakra.Thead>
-                  <Chakra.Tbody>
-                    <Chakra.Tr>
-                      {Array(5)
-                        .fill(undefined)
-                        .map((_, i) => (
-                          <Chakra.Td
-                            key={i}
-                            textAlign={'center'}
-                            borderLeftWidth={1}
-                          >
-                            <Chakra.Radio
-                              borderColor="white"
-                              isChecked={false}
-                            />
-                          </Chakra.Td>
-                        ))}
-                    </Chakra.Tr>
-                  </Chakra.Tbody>
-                </Chakra.Table>
-              </Chakra.TableContainer>
-
-              <Chakra.Text textAlign="center" fontWeight={700} marginBottom={8}>
-                Please rate each category on a scale of 1 to 5, with 1 being the
-                lowest and 5 being the highest.
-              </Chakra.Text>
-
-              {featuresItems.map((feature, i) => (
+              {likertScale.map((feature, i) => (
                 <Chakra.FormControl
                   key={i}
-                  isInvalid={!!errors[feature.name] && !!touched[feature.name]}
+                  isInvalid={
+                    !!formikProps.errors[feature.name] &&
+                    !!formikProps.touched[feature.name]
+                  }
                 >
                   <Chakra.RadioGroup
                     key={i}
-                    value={String(values[feature.name])}
+                    value={String(formikProps.values[feature.name])}
                   >
                     <Chakra.Heading as="h6" size="md">
                       {feature.label}
@@ -196,40 +213,98 @@ const AssessmentForm = () => {
                     <Chakra.Text marginBottom={2}>
                       {feature.description}
                     </Chakra.Text>
-                    <Chakra.Stack
-                      direction="row"
-                      justifyContent="space-around"
-                      padding={4}
-                      rounded={8}
+
+                    <Chakra.SimpleGrid
+                      minChildWidth="200px"
+                      gap={4}
+                      marginTop={8}
+                      marginBottom={8}
                     >
-                      {Array(5)
-                        .fill(undefined)
-                        .map((_, j) => (
-                          <Chakra.Radio
-                            id={`${feature.id}-r:${j}`}
+                      {Object.entries(feature.scales).map(
+                        ([scaleKey, scaleValue], j) => (
+                          <Chakra.Card
                             key={j}
-                            value={String(j + 1)}
-                            borderColor="gray.400"
-                            colorScheme="purple"
-                            onChange={() => {
-                              if (isSubmitting) return
-                              setFieldValue(feature.name, j + 1)
+                            alignItems="center"
+                            wordBreak="break-word"
+                            padding={2}
+                            onClick={() => {
+                              if (formikProps.isSubmitting) return
+                              formikProps.setFieldValue(feature.name, j + 1)
                             }}
-                            disabled={isSubmitting}
-                          />
-                        ))}
-                    </Chakra.Stack>
+                            transition="all 0.3s"
+                            _hover={{
+                              color: 'white',
+                            }}
+                            style={{
+                              backgroundColor:
+                                formikProps.values[feature.name] === j + 1
+                                  ? '#9F7AEA'
+                                  : '',
+                              color:
+                                formikProps.values[feature.name] === j + 1
+                                  ? 'white'
+                                  : '',
+                            }}
+                            cursor="pointer"
+                            gap={2}
+                            position="relative"
+                            overflow="hidden"
+                            onMouseEnter={(event) =>
+                              handleMouseEvents(event, true)
+                            }
+                            onMouseLeave={(event) =>
+                              handleMouseEvents(event, false)
+                            }
+                          >
+                            <Chakra.Text
+                              textAlign="center"
+                              fontSize="md"
+                              textTransform="capitalize"
+                              fontWeight="bold"
+                              zIndex={1}
+                              pointerEvents="none"
+                            >
+                              {scaleKey}
+                            </Chakra.Text>
+                            <Chakra.Radio
+                              id={`${feature.id}-r:${j}`}
+                              value={String(j + 1)}
+                              colorScheme="white"
+                              disabled={formikProps.isSubmitting}
+                              zIndex={1}
+                              pointerEvents="none"
+                            />
+                            <Chakra.Text
+                              textAlign="center"
+                              fontSize="sm"
+                              zIndex={1}
+                              pointerEvents="none"
+                            >
+                              {scaleValue}
+                            </Chakra.Text>
+                            <div className="absolute rounded-full bg-[#9F7AEA]  -translate-x-1/2 -translate-y-1/2 z-0" />
+                          </Chakra.Card>
+                        )
+                      )}
+                    </Chakra.SimpleGrid>
                   </Chakra.RadioGroup>
                   <Chakra.FormErrorMessage>
-                    {errors[feature.name]}
+                    {formikProps.errors[feature.name]}
                   </Chakra.FormErrorMessage>
                 </Chakra.FormControl>
               ))}
               <Chakra.Button
                 colorScheme="purple"
-                type="submit"
-                isDisabled={isSubmitting}
-                isLoading={isSubmitting}
+                isDisabled={
+                  formikProps.isSubmitting ||
+                  Object.keys(formikProps.errors).length > 0
+                }
+                isLoading={formikProps.isSubmitting}
+                onClick={() => {
+                  if (Object.keys(formikProps.errors).length === 0) {
+                    handleOptionButtonClick()
+                  }
+                }}
               >
                 Submit
               </Chakra.Button>
@@ -237,7 +312,8 @@ const AssessmentForm = () => {
               <Chakra.AlertDialog
                 motionPreset="scale"
                 leastDestructiveRef={cancelRef}
-                closeOnEsc={false}
+                closeOnEsc={!alertContent?.isResponse}
+                closeOnOverlayClick={!alertContent?.isResponse}
                 onClose={onClose}
                 isOpen={isOpen}
                 isCentered
@@ -247,30 +323,80 @@ const AssessmentForm = () => {
                   backdropFilter="blur(10px)"
                 />
                 <Chakra.AlertDialogContent
-                  width={isSubmitting ? 'fit-content' : 'inherit'}
+                  width={formikProps.isSubmitting ? 'fit-content' : 'inherit'}
+                  margin={8}
                 >
-                  {!isSubmitting && (
+                  <Chakra.AlertDialogCloseButton
+                    hidden={formikProps.isSubmitting}
+                    onClick={() => {
+                      formikProps.setSubmitting(false)
+                    }}
+                  />
+                  {!formikProps.isSubmitting && (
                     <Chakra.AlertDialogHeader>
-                      {modalContent?.title}
+                      {alertContent?.title}
                     </Chakra.AlertDialogHeader>
                   )}
                   <Chakra.AlertDialogBody>
-                    {isSubmitting ? (
-                      <Chakra.Spinner size="xl" margin="auto" />
+                    {formikProps.isSubmitting ? (
+                      <Chakra.Stack padding={12}>
+                        <LottieLoading />
+                      </Chakra.Stack>
                     ) : (
-                      <Chakra.Text>{modalContent?.body}</Chakra.Text>
+                      renderModalContent()
                     )}
                   </Chakra.AlertDialogBody>
-                  {!isSubmitting && (
+                  {!formikProps.isSubmitting && (
                     <Chakra.AlertDialogFooter>
-                      <Chakra.Button
-                        ref={cancelRef}
-                        onClick={onClose}
-                        isDisabled={isSubmitting}
-                        colorScheme="purple"
+                      <Chakra.Stack
+                        hidden={alertContent?.isResponse}
+                        flexGrow={1}
                       >
-                        Confirm
-                      </Chakra.Button>
+                        <Chakra.Button
+                          id="upload"
+                          variant="solid"
+                          type="submit"
+                          onClick={(event: React.MouseEvent<Element>) =>
+                            handleSubmitForm(
+                              event,
+                              formikProps.values,
+                              formikProps
+                            )
+                          }
+                        >
+                          Upload
+                        </Chakra.Button>
+                        <Chakra.Button
+                          id="upload_predict"
+                          variant="solid"
+                          colorScheme="purple"
+                          onClick={(event: React.MouseEvent<Element>) =>
+                            handleSubmitForm(
+                              event,
+                              formikProps.values,
+                              formikProps
+                            )
+                          }
+                        >
+                          Upload and Predict
+                        </Chakra.Button>
+                      </Chakra.Stack>
+                      {alertContent?.isResponse && (
+                        <Chakra.Button
+                          ref={cancelRef}
+                          onClick={() => {
+                            onClose()
+                            setAlertContent({
+                              title: '',
+                              body: '',
+                              isResponse: false,
+                            })
+                          }}
+                          colorScheme="purple"
+                        >
+                          Okay
+                        </Chakra.Button>
+                      )}
                     </Chakra.AlertDialogFooter>
                   )}
                 </Chakra.AlertDialogContent>

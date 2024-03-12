@@ -191,13 +191,13 @@ const Datasets = () => {
     try {
       setIsPredicting(true)
       const response = await axios.post(
-        '/model/predict',
+        '/predict',
         {
           datasetId: predictionQueue?.data_id,
         },
         {
           headers: {
-            Authorization: token?.accessToken,
+            Authorization: token
           },
         }
       )

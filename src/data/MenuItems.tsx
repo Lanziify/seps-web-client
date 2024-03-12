@@ -4,16 +4,16 @@ export const menuItems = [
   {
     name: 'Home',
     path: '/home',
-    icon: <IoHome />,
+    icon: <IoHome size={24} />,
   },
   {
     name: 'Predictions',
     path: '/predictions',
-    icon: <IoRocket />,
+    icon: <IoRocket size={24} />,
   },
   {
     name: 'Datasets',
     path: '/datasets',
-    icon: <IoServer />,
+    icon: <IoServer size={24} />,
   },
 ]
