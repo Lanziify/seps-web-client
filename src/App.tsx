@@ -8,12 +8,14 @@ import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import Predictions from './pages/Predictions'
 import Datasets from './pages/Datasets'
+import Landing from './pages/Landing'
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<PublicRoutes />}>
-        <Route index element={<Login />} />
+        <Route index element={<Landing />} />
+        {/* <Route index element={<Login />} /> */}
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
       </Route>

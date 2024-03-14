@@ -8,16 +8,29 @@ import {
   MdOutlineAlternateEmail,
   MdPersonOutline,
 } from 'react-icons/md'
-import { NavLink } from 'react-router-dom'
+import axios from '../api/axios'
 
-type PropTypes = {
-  onSubmit: any
-  registrationError: any
-  onCloseError: any
-  toLoginLink: string
+type RegistrationValues = {
+  username: string
+  email: string
+  password: string
 }
 
-const RegisterForm: React.FC<PropTypes> = (props: PropTypes) => {
+type RegistrationResponse = {
+  title: string
+  message: string
+}
+
+type RegistrationProps = {
+  href?: string
+  onLinkClick?: () => void
+}
+
+const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => {
+  const [regisrationResponse, setRegisrationResponse] =
+    React.useState<RegistrationResponse | null>(null)
+  const [registrationError, setRegistrationError] = React.useState(null)
+
   const registrationValidationSchema = yup.object().shape({
     username: yup.string().required('Username is required'),
     email: yup
@@ -33,194 +46,233 @@ const RegisterForm: React.FC<PropTypes> = (props: PropTypes) => {
       ),
   })
 
+  const handleSubmit = async (values: RegistrationValues) => {
+    try {
+      const response = await axios.post(`/register`, {
+        ...values,
+      })
+      setRegisrationResponse(response.data)
+    } catch (error: any) {
+      setRegistrationError(error.message)
+    }
+  }
+
+  const handleCloseError = () => {
+    setRegistrationError(null)
+  }
+
   return (
-    <Chakra.Box bg="white" p={6} rounded="2xl" margin={8} w={420} shadow="xl">
-      <Formik
-        initialValues={{
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-        }}
-        validationSchema={registrationValidationSchema}
-        enableReinitialize={true}
-        onSubmit={props.onSubmit}
-      >
-        {({ values, errors, touched, handleChange, isSubmitting }) => (
-          <Form>
-            <Chakra.Stack padding={3} spacing={3}>
-              <Chakra.Heading as="h1" size="xl">
-                Register
-              </Chakra.Heading>
-              <Chakra.Alert
-                status="error"
-                hidden={!props.registrationError}
-                rounded="md"
-              >
-                <Chakra.AlertIcon />
-                <Chakra.Box width="inherit">
-                  <Chakra.AlertDescription>
-                    {props.registrationError}
-                  </Chakra.AlertDescription>
-                </Chakra.Box>
-                <Chakra.CloseButton
-                  alignSelf="flex-start"
-                  position="relative"
-                  right={-1}
-                  top={-1}
-                  onClick={props.onCloseError}
-                />
-              </Chakra.Alert>
-              <Chakra.FormControl
-                isInvalid={!!errors.username && !!touched.username}
-              >
-                <Chakra.FormLabel htmlFor="username">Username</Chakra.FormLabel>
-                <Chakra.InputGroup>
-                  <Chakra.InputLeftAddon
-                    border={0}
-                    background="purple.500"
-                    color="white"
+    <>
+      {!regisrationResponse ? (
+        <Chakra.Box p={6}>
+          <Formik
+            initialValues={{
+              username: '',
+              email: '',
+              password: '',
+              confirmPassword: '',
+            }}
+            validationSchema={registrationValidationSchema}
+            enableReinitialize={true}
+            onSubmit={handleSubmit}
+          >
+            {({ values, errors, touched, handleChange, isSubmitting }) => (
+              <Form>
+                <Chakra.Stack padding={3} spacing={3}>
+                  <Chakra.Heading as="h1" size="2xl" fontWeight={700}>
+                    Register
+                  </Chakra.Heading>
+                  <Chakra.Alert
+                    status="error"
+                    hidden={!registrationError}
+                    rounded="md"
                   >
-                    <MdPersonOutline />
-                  </Chakra.InputLeftAddon>
-                  <Field
-                    as={Chakra.Input}
-                    id="username"
-                    name="username"
-                    variant="filled"
-                    type="text"
-                    focusBorderColor="purple.500"
-                    roundedStart={0}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
-                </Chakra.InputGroup>
-                <Chakra.FormErrorMessage>
-                  {errors.username}
-                </Chakra.FormErrorMessage>
-              </Chakra.FormControl>
-
-              <Chakra.FormControl isInvalid={!!errors.email && !!touched.email}>
-                <Chakra.FormLabel htmlFor="email">Email</Chakra.FormLabel>
-                <Chakra.InputGroup>
-                  <Chakra.InputLeftAddon
-                    border={0}
-                    background="purple.500"
-                    color="white"
+                    <Chakra.AlertIcon />
+                    <Chakra.Box width="inherit">
+                      <Chakra.AlertDescription>
+                        {registrationError}
+                      </Chakra.AlertDescription>
+                    </Chakra.Box>
+                    <Chakra.CloseButton
+                      alignSelf="flex-start"
+                      position="relative"
+                      right={-1}
+                      top={-1}
+                      onClick={handleCloseError}
+                    />
+                  </Chakra.Alert>
+                  <Chakra.FormControl
+                    isInvalid={!!errors.username && !!touched.username}
                   >
-                    <MdOutlineAlternateEmail />
-                  </Chakra.InputLeftAddon>
-                  <Field
-                    as={Chakra.Input}
-                    id="email"
-                    name="email"
-                    variant="filled"
-                    type="email"
-                    focusBorderColor="purple.500"
-                    roundedStart={0}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
-                </Chakra.InputGroup>
-                <Chakra.FormErrorMessage>
-                  {errors.email}
-                </Chakra.FormErrorMessage>
-              </Chakra.FormControl>
+                    <Chakra.FormLabel htmlFor="username">
+                      Username
+                    </Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
+                        border={0}
+                        background="purple.500"
+                        color="white"
+                      >
+                        <MdPersonOutline />
+                      </Chakra.InputLeftAddon>
+                      <Field
+                        as={Chakra.Input}
+                        id="username"
+                        name="username"
+                        variant="filled"
+                        type="text"
+                        focusBorderColor="purple.500"
+                        roundedStart={0}
+                        onChange={handleChange}
+                        disabled={isSubmitting}
+                      />
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>
+                      {errors.username}
+                    </Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-              <Chakra.FormControl
-                isInvalid={!!errors.password && !!touched.password}
-              >
-                <Chakra.FormLabel htmlFor="password">Password</Chakra.FormLabel>
-                <Chakra.InputGroup>
-                  <Chakra.InputLeftAddon
-                    border={0}
-                    background="purple.500"
-                    color="white"
+                  <Chakra.FormControl
+                    isInvalid={!!errors.email && !!touched.email}
                   >
-                    <MdLockOutline />
-                  </Chakra.InputLeftAddon>
-                  <Field
-                    as={Chakra.Input}
-                    id="password"
-                    name="password"
-                    variant="filled"
-                    type="password"
-                    focusBorderColor="purple.500"
-                    roundedStart={0}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
-                </Chakra.InputGroup>
-                <Chakra.FormErrorMessage>
-                  {errors.password}
-                </Chakra.FormErrorMessage>
-              </Chakra.FormControl>
+                    <Chakra.FormLabel htmlFor="email">Email</Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
+                        border={0}
+                        background="purple.500"
+                        color="white"
+                      >
+                        <MdOutlineAlternateEmail />
+                      </Chakra.InputLeftAddon>
+                      <Field
+                        as={Chakra.Input}
+                        id="email"
+                        name="email"
+                        variant="filled"
+                        type="email"
+                        focusBorderColor="purple.500"
+                        roundedStart={0}
+                        onChange={handleChange}
+                        disabled={isSubmitting}
+                      />
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>
+                      {errors.email}
+                    </Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-              <Chakra.FormControl
-                isInvalid={
-                  !!errors.confirmPassword && !!touched.confirmPassword
-                }
-              >
-                <Chakra.FormLabel htmlFor="confirmPassword">
-                  Confirm Password
-                </Chakra.FormLabel>
-                <Chakra.InputGroup>
-                  <Chakra.InputLeftAddon
-                    border={0}
-                    background="purple.500"
-                    color="white"
+                  <Chakra.FormControl
+                    isInvalid={!!errors.password && !!touched.password}
                   >
-                    <MdLockOutline />
-                  </Chakra.InputLeftAddon>
-                  <Field
-                    as={Chakra.Input}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    variant="filled"
-                    type="password"
-                    focusBorderColor="purple.500"
-                    roundedStart={0}
-                    onChange={handleChange}
-                    validate={(value: string) => {
-                      let error
+                    <Chakra.FormLabel htmlFor="password">
+                      Password
+                    </Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
+                        border={0}
+                        background="purple.500"
+                        color="white"
+                      >
+                        <MdLockOutline />
+                      </Chakra.InputLeftAddon>
+                      <Field
+                        as={Chakra.Input}
+                        id="password"
+                        name="password"
+                        variant="filled"
+                        type="password"
+                        focusBorderColor="purple.500"
+                        roundedStart={0}
+                        onChange={handleChange}
+                        disabled={isSubmitting}
+                      />
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>
+                      {errors.password}
+                    </Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
 
-                      if (value.length == 0) {
-                        error = 'Confirm your password'
-                      } else if (value != values.password) {
-                        error = 'Password does not match'
-                      }
+                  <Chakra.FormControl
+                    isInvalid={
+                      !!errors.confirmPassword && !!touched.confirmPassword
+                    }
+                  >
+                    <Chakra.FormLabel htmlFor="confirmPassword">
+                      Confirm Password
+                    </Chakra.FormLabel>
+                    <Chakra.InputGroup>
+                      <Chakra.InputLeftAddon
+                        border={0}
+                        background="purple.500"
+                        color="white"
+                      >
+                        <MdLockOutline />
+                      </Chakra.InputLeftAddon>
+                      <Field
+                        as={Chakra.Input}
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        variant="filled"
+                        type="password"
+                        focusBorderColor="purple.500"
+                        roundedStart={0}
+                        onChange={handleChange}
+                        validate={(value: string) => {
+                          let error
 
-                      return error
-                    }}
-                  />
-                </Chakra.InputGroup>
-                <Chakra.FormErrorMessage>
-                  {errors.confirmPassword}
-                </Chakra.FormErrorMessage>
-              </Chakra.FormControl>
-              <div></div>
-              <Chakra.Button
-                colorScheme="purple"
-                type="submit"
-                isDisabled={isSubmitting}
-                isLoading={isSubmitting}
-              >
-                Register
-              </Chakra.Button>
-              <Chakra.Text fontSize={14} marginTop={4} placeSelf="center">
-                Already have an account?{' '}
-                <NavLink
-                  to={props.toLoginLink}
-                  className="text-purple-400 font-semibold"
-                >
-                  Login
-                </NavLink>
-              </Chakra.Text>
-            </Chakra.Stack>
-          </Form>
-        )}
-      </Formik>
-    </Chakra.Box>
+                          if (value.length == 0) {
+                            error = 'Confirm your password'
+                          } else if (value != values.password) {
+                            error = 'Password does not match'
+                          }
+
+                          return error
+                        }}
+                      />
+                    </Chakra.InputGroup>
+                    <Chakra.FormErrorMessage>
+                      {errors.confirmPassword}
+                    </Chakra.FormErrorMessage>
+                  </Chakra.FormControl>
+                  <div></div>
+                  <Chakra.Button
+                    colorScheme="purple"
+                    type="submit"
+                    isDisabled={isSubmitting}
+                    isLoading={isSubmitting}
+                  >
+                    Register
+                  </Chakra.Button>
+                  <Chakra.Text fontSize={14} marginTop={4} placeSelf="center">
+                    Already have an account?{' '}
+                    <Chakra.Link
+                      color="purple.500"
+                      href={props.href}
+                      onClick={props.onLinkClick}
+                    >
+                      Login
+                    </Chakra.Link>
+                  </Chakra.Text>
+                </Chakra.Stack>
+              </Form>
+            )}
+          </Formik>
+        </Chakra.Box>
+      ) : (
+        <Chakra.Stack w={420}>
+          <Chakra.Heading
+            as="h1"
+            size="xl"
+            marginBottom={2}
+            textAlign="center"
+            color="teal.400"
+          >
+            {regisrationResponse.title}
+          </Chakra.Heading>
+          <p className="text-sm text-center">{regisrationResponse.message}</p>
+        </Chakra.Stack>
+      )}
+    </>
   )
 }
 

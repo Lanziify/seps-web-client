@@ -62,6 +62,7 @@ const Header = (props: HeaderProps) => {
             icon={<IoMenuOutline size={24} />}
             color="purple.400"
             onClick={props.toggleMenu}
+            hideBelow='md'
           />
           <Chakra.Text
             as="h1"

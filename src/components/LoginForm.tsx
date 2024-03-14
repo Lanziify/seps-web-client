@@ -4,18 +4,24 @@ import { Field, Form, Formik } from 'formik'
 import * as yup from 'yup'
 import { regex } from '../strings/regex'
 import { MdLockOutline, MdOutlineAlternateEmail } from 'react-icons/md'
-import { NavLink } from 'react-router-dom'
 import { IoEye, IoEyeOff } from 'react-icons/io5'
+import { useAuth } from '../context/AuthContext'
 
-type PropTypes = {
-  onSubmit: any
-  loginError: any
-  onCloseError: any
-  toRegistrationLink: string
+type LoginValues = {
+  email: string
+  password: string
 }
 
-const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
+type LoginProps = {
+  href?: string
+  onLinkClick?: () => void
+}
+
+const LoginForm: React.FC<LoginProps> = (props: LoginProps) => {
   const [showPassword, setShowPassword] = React.useState(false)
+  const [loginError, setLoginError] = React.useState(null)
+  const { loginUser } = useAuth()
+
   const registrationValidationSchema = yup.object().shape({
     email: yup
       .string()
@@ -30,8 +36,20 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
       ),
   })
 
+  const handleSubmit = async (values: LoginValues) => {
+    try {
+      await loginUser(values)
+    } catch (error: any) {
+      setLoginError(error.message)
+    }
+  }
+
+  const handleCloseError = () => {
+    setLoginError(null)
+  }
+
   return (
-    <Chakra.Box bg="white" p={6} rounded="2xl" margin={8} w={420} shadow="xl">
+    <Chakra.Box p={6}>
       <Formik
         initialValues={{
           email: '',
@@ -39,28 +57,24 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
         }}
         validationSchema={registrationValidationSchema}
         enableReinitialize={true}
-        onSubmit={props.onSubmit}
+        onSubmit={handleSubmit}
       >
         {({ errors, touched, handleChange, isSubmitting }) => (
           <Form>
             <Chakra.Stack padding={3} spacing={3}>
               <Chakra.Heading
                 as="h1"
-                size="lg"
+                size="2xl"
+                fontWeight={700}
                 marginBottom={2}
-                textAlign="center"
               >
-                Student Employability Prediction System
+                Login
               </Chakra.Heading>
-              <Chakra.Alert
-                status="error"
-                hidden={!props.loginError}
-                rounded="md"
-              >
+              <Chakra.Alert status="error" hidden={!loginError} rounded="md">
                 <Chakra.AlertIcon />
                 <Chakra.Box width="inherit">
                   <Chakra.AlertDescription>
-                    {props.loginError}
+                    {loginError}
                   </Chakra.AlertDescription>
                 </Chakra.Box>
                 <Chakra.CloseButton
@@ -68,7 +82,7 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
                   position="relative"
                   right={-1}
                   top={-1}
-                  onClick={props.onCloseError}
+                  onClick={handleCloseError}
                 />
               </Chakra.Alert>
               <Chakra.FormControl isInvalid={!!errors.email && !!touched.email}>
@@ -158,12 +172,7 @@ const LoginForm: React.FC<PropTypes> = (props: PropTypes) => {
               </Chakra.Button>
               <Chakra.Text fontSize={14} marginTop={4} placeSelf="center">
                 Don't have an account yet?{' '}
-                <NavLink
-                  to={props.toRegistrationLink}
-                  className="text-purple-400 font-semibold"
-                >
-                  Create account
-                </NavLink>
+                <Chakra.Link color="purple.500" href={props.href} onClick={props.onLinkClick}>Create account</Chakra.Link>
               </Chakra.Text>
             </Chakra.Stack>
           </Form>
