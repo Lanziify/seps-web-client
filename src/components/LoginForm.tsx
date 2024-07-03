@@ -6,6 +6,8 @@ import { regex } from '../strings/regex'
 import { MdLockOutline, MdOutlineAlternateEmail } from 'react-icons/md'
 import { IoEye, IoEyeOff } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
+import { useModal } from '../context/ModalContext'
+import RegisterForm from './RegisterForm'
 
 type LoginValues = {
   email: string
@@ -19,6 +21,11 @@ type LoginProps = {
 
 const LoginForm: React.FC<LoginProps> = (props: LoginProps) => {
   const [showPassword, setShowPassword] = React.useState(false)
+  const {
+    onClose,
+    mountModalContent: onModalContent,
+    onModalLoading,
+  } = useModal()
   const [loginError, setLoginError] = React.useState(null)
   const { loginUser } = useAuth()
 
@@ -38,7 +45,10 @@ const LoginForm: React.FC<LoginProps> = (props: LoginProps) => {
 
   const handleSubmit = async (values: LoginValues) => {
     try {
+      onModalLoading(true)
       await loginUser(values)
+      onModalLoading(false)
+      onClose()
     } catch (error: any) {
       setLoginError(error.message)
     }
@@ -46,6 +56,10 @@ const LoginForm: React.FC<LoginProps> = (props: LoginProps) => {
 
   const handleCloseError = () => {
     setLoginError(null)
+  }
+
+  const handleLinkCLick = () => {
+    onModalContent(<RegisterForm />)
   }
 
   return (
@@ -172,7 +186,13 @@ const LoginForm: React.FC<LoginProps> = (props: LoginProps) => {
               </Chakra.Button>
               <Chakra.Text fontSize={14} marginTop={4} placeSelf="center">
                 Don't have an account yet?{' '}
-                <Chakra.Link color="purple.500" href={props.href} onClick={props.onLinkClick}>Create account</Chakra.Link>
+                <Chakra.Link
+                  color="purple.500"
+                  href={props.href}
+                  onClick={handleLinkCLick}
+                >
+                  Create account
+                </Chakra.Link>
               </Chakra.Text>
             </Chakra.Stack>
           </Form>

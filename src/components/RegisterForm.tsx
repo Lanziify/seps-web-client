@@ -9,6 +9,8 @@ import {
   MdPersonOutline,
 } from 'react-icons/md'
 import axios from '../api/axios'
+import { useModal } from '../context/ModalContext'
+import LoginForm from './LoginForm'
 
 type RegistrationValues = {
   username: string
@@ -26,10 +28,13 @@ type RegistrationProps = {
   onLinkClick?: () => void
 }
 
-const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => {
+const RegisterForm: React.FC<RegistrationProps> = (
+  props: RegistrationProps
+) => {
   const [regisrationResponse, setRegisrationResponse] =
     React.useState<RegistrationResponse | null>(null)
   const [registrationError, setRegistrationError] = React.useState(null)
+  const { mountModalContent: onModalContent, onModalLoading } = useModal()
 
   const registrationValidationSchema = yup.object().shape({
     username: yup.string().required('Username is required'),
@@ -48,10 +53,12 @@ const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => 
 
   const handleSubmit = async (values: RegistrationValues) => {
     try {
+      onModalLoading(true)
       const response = await axios.post(`/register`, {
         ...values,
       })
       setRegisrationResponse(response.data)
+      onModalLoading(false)
     } catch (error: any) {
       setRegistrationError(error.message)
     }
@@ -59,6 +66,10 @@ const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => 
 
   const handleCloseError = () => {
     setRegistrationError(null)
+  }
+
+  const handleLinkCLick = () => {
+    onModalContent(<LoginForm />)
   }
 
   return (
@@ -248,7 +259,7 @@ const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => 
                     <Chakra.Link
                       color="purple.500"
                       href={props.href}
-                      onClick={props.onLinkClick}
+                      onClick={handleLinkCLick}
                     >
                       Login
                     </Chakra.Link>
@@ -259,7 +270,7 @@ const RegisterForm: React.FC<RegistrationProps> = (props: RegistrationProps) => 
           </Formik>
         </Chakra.Box>
       ) : (
-        <Chakra.Stack w={420}>
+        <Chakra.Stack w={420} p={4}>
           <Chakra.Heading
             as="h1"
             size="xl"

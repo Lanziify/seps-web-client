@@ -4,20 +4,12 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
-
-interface ModalFormContent {
-  id: string | null
-  content: JSX.Element | null
-}
+import { useModal } from '../context/ModalContext'
+import { defaultFade, itemSlideDown } from '../animations/animations'
 
 const LandingHeader = () => {
   const { scrollYProgress } = useScroll()
-  const { isOpen, onOpen, onClose } = Chakra.useDisclosure()
-  const [modalFormContent, setModalFormContent] =
-    React.useState<ModalFormContent>({
-      id: '',
-      content: null,
-    })
+  const { onOpen, mountModalContent: onModalContent } = useModal()
 
   const headerLinks = [
     {
@@ -44,20 +36,12 @@ const LandingHeader = () => {
 
   const handleButtonClick = (event: React.MouseEvent) => {
     const buttonId = (event?.target as HTMLElement).id
-    setModalFormContent(() => {
-      if (buttonId === 'login') {
-        return {
-          id: buttonId,
-          content: <LoginForm />,
-        }
-      } else {
-        return {
-          id: buttonId,
-          content: <RegisterForm />,
-        }
-      }
-    })
     onOpen()
+    if (buttonId === 'login') {
+      onModalContent(<LoginForm />)
+    } else {
+      onModalContent(<RegisterForm />)
+    }
   }
 
   return (
@@ -79,27 +63,40 @@ const LandingHeader = () => {
         margin="auto"
         justifyContent="space-between"
         alignItems="center"
-        padding={3}
         gap={3}
       >
         <Chakra.Flex alignItems="center" gap={4} flexShrink={0}>
           <Chakra.Text
-            as="h1"
+            as={motion.h1}
+            initial="initial"
+            animate="animate"
+            variants={itemSlideDown}
             fontSize={24}
             fontWeight={900}
             color="purple.500"
             zIndex={10}
+            padding={4}
           >
             SEPS
           </Chakra.Text>
         </Chakra.Flex>
 
-        <Chakra.Flex gap={4}>
+        <Chakra.Flex
+          as={motion.div}
+          initial="initial"
+          animate="animate"
+          variants={defaultFade}
+          gap={4}
+          padding={3}
+          overflow="hidden"
+        >
           {headerLinks.map((link, index) => (
             <Chakra.Button
+              as={motion.button}
+              variants={itemSlideDown}
               key={index}
-              as={NavLink}
-              to={link.path}
+              // as={NavLink}
+              // to={link.path}
               _hover={{
                 backgroundColor: 'transparent',
                 textColor: 'purple.500',
@@ -111,6 +108,8 @@ const LandingHeader = () => {
             </Chakra.Button>
           ))}
           <Chakra.Button
+            as={motion.button}
+            variants={itemSlideDown}
             id="register"
             variant="ghost"
             onClick={handleButtonClick}
@@ -118,6 +117,8 @@ const LandingHeader = () => {
             Register
           </Chakra.Button>
           <Chakra.Button
+            as={motion.button}
+            variants={itemSlideDown}
             id="login"
             variant="solid"
             colorScheme="purple"
@@ -127,24 +128,6 @@ const LandingHeader = () => {
           </Chakra.Button>
         </Chakra.Flex>
       </Chakra.Flex>
-
-      <Chakra.Modal onClose={onClose} isOpen={isOpen} isCentered>
-        <Chakra.ModalOverlay bg="blackAlpha.500" />
-        <Chakra.ModalContent
-          backgroundColor="#fff"
-          rounded="xl"
-          backdropFilter="auto"
-          backdropBlur="2xl"
-          maxW="lg"
-          margin={4}
-          shadow="2xl"
-        >
-          <Chakra.ModalCloseButton
-            onClick={() => setModalFormContent({ id: null, content: null })}
-          />
-          {modalFormContent.content}
-        </Chakra.ModalContent>
-      </Chakra.Modal>
     </Chakra.Stack>
   )
 }

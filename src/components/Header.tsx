@@ -75,12 +75,12 @@ const Header = (props: HeaderProps) => {
             Student Employability Prediction
           </Chakra.Text>
         </Chakra.Flex>
-        <Chakra.InputGroup width="100%" size='sm' maxWidth="2xl" hideBelow="md">
+        {/* <Chakra.InputGroup width="100%" size='sm' maxWidth="2xl" hideBelow="md">
           <Chakra.Input variant="filled" rounded='lg' placeholder="Search" />
           <Chakra.InputLeftElement>
             <IoSearchOutline size={18} />
           </Chakra.InputLeftElement>
-        </Chakra.InputGroup>
+        </Chakra.InputGroup> */}
         <Chakra.Stack direction="row" hideBelow="sm">
           <Chakra.Button
             colorScheme={

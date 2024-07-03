@@ -6,17 +6,20 @@ import { ChakraProvider } from '@chakra-ui/react'
 import AuthContextProvider from './context/AuthContext.tsx'
 import { Provider } from 'react-redux'
 import store from './redux/store.tsx'
+import ModalContextProvider from './context/ModalContext.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
-    <AuthContextProvider>
-      <ChakraProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/*" element={<App />} />
-          </Routes>
-        </BrowserRouter>
-      </ChakraProvider>
-    </AuthContextProvider>
+    <ChakraProvider>
+      <AuthContextProvider>
+        <ModalContextProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/*" element={<App />} />
+            </Routes>
+          </BrowserRouter>
+        </ModalContextProvider>
+      </AuthContextProvider>
+    </ChakraProvider>
   </Provider>
 )

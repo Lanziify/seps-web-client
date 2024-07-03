@@ -277,6 +277,10 @@ const Datasets = () => {
           }}
           rowCount={datasetTotalItem}
           loading={isLoadingDataset}
+          checkboxSelection={false}
+          onRowSelectionModelChange={(ids) => {
+            console.log(ids)
+          }}
           disableRowSelectionOnClick
         />
       </ThemeProvider>
